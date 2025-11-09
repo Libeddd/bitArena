@@ -21,6 +21,7 @@ dependencies:
   injectable: ^2.3.2
   flutter_svg: ^2.0.9         
   cached_network_image: ^3.3.0
+  carousel_slider: ^5.1.1
 
 
 dev_dependencies:

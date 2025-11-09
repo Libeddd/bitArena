@@ -11,7 +11,7 @@ class DioClient {
             'key': _apiKey, // Selalu lampirkan API key
           },
           connectTimeout: const Duration(milliseconds: 5000),
-          receiveTimeout: const Duration(milliseconds: 3000),
+          receiveTimeout: const Duration(milliseconds: 15000),
         )) {
     // Anda bisa tambahkan interceptor di sini
   }
@@ -29,5 +29,3 @@ class DioClient {
     }
   }
 }
-
-// Nanti ini akan di-inject menggunakan GetIt
