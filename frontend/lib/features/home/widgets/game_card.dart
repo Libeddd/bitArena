@@ -128,10 +128,10 @@ class _GameCardState extends State<GameCard> {
                           const SizedBox(width: 4),
                           Text(widget.game.releasedDate, style: const TextStyle(color: Colors.grey)),
                           const SizedBox(width: 16),
-                          const Icon(Icons.storage, size: 14, color: Colors.grey),
+                          const Icon(Icons.star, size: 14, color: Colors.grey),
                           const SizedBox(width: 4),
-                          // Ukuran (Placeholder)
-                          const Text('12.1 GB', style: TextStyle(color: Colors.grey)),
+                          Text(widget.game.rating.toString(),style: const TextStyle(color: Colors.grey)
+                          ),
                         ],
                       ),
                     ],
