@@ -5,66 +5,82 @@ import 'package:frontend/app/app_routes.dart';
 import 'package:frontend/data/models/game_model.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-class HomeCard extends StatelessWidget {
+class HomeCard extends StatefulWidget {
   final GameModel game;
   const HomeCard({super.key, required this.game});
 
   @override
+  State<HomeCard> createState() => _HomeTrendingCardState();
+}
+
+class _HomeTrendingCardState extends State<HomeCard> {
+  bool _isHovered = false;
+
+  @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        context.push('${AppRoutes.detail}/${game.id}');
-      },
-      child: Container(
+    // --- PERUBAHAN 3: Bungkus dengan MouseRegion ---
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      cursor: SystemMouseCursors.click,
+      
+      // --- PERUBAHAN 4: Ganti Container jadi AnimatedContainer ---
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200), // Kecepatan animasi
+        
+        // --- INI EFEK "TIMBUL" (POP UP) ---
+        transform: Matrix4.identity()..scale(_isHovered ? 1.05 : 1.0),
+        transformAlignment: Alignment.center,
+        
         decoration: BoxDecoration(
           color: const Color(0xFF2A2A2A),
           borderRadius: BorderRadius.circular(12.0),
+          
+          // --- INI EFEK "SELECT" (SHADOW) ---
+          boxShadow: _isHovered
+              ? [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.6),
+                    blurRadius: 15,
+                    offset: const Offset(0, 8),
+                  ),
+                ]
+              : [], // Hilangkan shadow saat tidak di-hover
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // --- 1. GAMBAR (Bagian Atas) ---
-            ClipRRect(
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(12.0),
-                topRight: Radius.circular(12.0),
-              ),
-              
-              // --- INI PERBAIKANNYA ---
-              // 1. Kita bungkus dengan 'AspectRatio'
-              child: AspectRatio(
-                aspectRatio: 16 / 9,
-                // 2. 'CachedNetworkImage' sekarang ada di dalamnya
-                child: CachedNetworkImage(
-                  imageUrl: game.backgroundImage,
-                  fit: BoxFit.cover,
-                  placeholder: (context, url) => Container(
-                    color: Colors.grey[800],
-                    child: const Center(
-                      child: CircularProgressIndicator(
-                        color: Colors.white54,
+        child: GestureDetector(
+          onTap: () {
+            context.push('${AppRoutes.detail}/${widget.game.id}');
+          },
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // --- 1. GAMBAR (Bagian Atas) ---
+              ClipRRect(
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(12.0),
+                  topRight: Radius.circular(12.0),
+                ),
+                child: AspectRatio(
+                  aspectRatio: 16 / 9,
+                  child: CachedNetworkImage(
+                    imageUrl: widget.game.backgroundImage,
+                    fit: BoxFit.cover,
+                    placeholder: (context, url) => Container(
+                      color: Colors.grey[800],
+                      child: const Center(
+                        child: CircularProgressIndicator(color: Colors.white54),
                       ),
                     ),
-                  ),
-                  
-                  // --- PERBAIKAN: errorWidget yang lebih jelas ---
-                  errorWidget: (context, url, error) => Container(
-                    color: Colors.grey[700],
-                    child: const Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.broken_image, color: Colors.white, size: 40),
-                          SizedBox(height: 8),
-                          Text('Image failed to load', style: TextStyle(color: Colors.white70, fontSize: 12)),
-                        ],
+                    errorWidget: (context, url, error) => Container(
+                      color: Colors.grey[700],
+                      child: const Center(
+                        child: Icon(Icons.broken_image, color: Colors.white, size: 40),
                       ),
                     ),
                   ),
                 ),
               ),
-            ),
-
+                
             Padding(
               padding: const EdgeInsets.all(12.0),
               child: Column(
@@ -73,13 +89,13 @@ class HomeCard extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      _PlatformIcons(platforms: game.platforms),
-                      _MetacriticScore(score: game.metacritic),
+                      _PlatformIcons(platforms: widget.game.platforms),
+                      _MetacriticScore(score: widget.game.metacritic),
                     ],
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    game.name,
+                    widget.game.name,
                     style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
@@ -94,24 +110,23 @@ class HomeCard extends StatelessWidget {
                       const Icon(Icons.add, color: Colors.grey, size: 16),
                       const SizedBox(width: 4),
                       Text(
-                        game.added.toString(),
+                        widget.game.added.toString(),
                         style: const TextStyle(color: Colors.grey, fontSize: 13),
                       ),
                       const Spacer(),
                       const Icon(Icons.arrow_drop_down, color: Colors.grey),
                     ],
-                  ),
-                ],
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 }
-
-// --- (Sisa kode _MetacriticScore dan _PlatformIcons tidak berubah) ---
 
 class _MetacriticScore extends StatelessWidget {
   final int score;

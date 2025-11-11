@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/app/app_routes.dart'; 
 import 'package:frontend/core/network/dio_client.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:frontend/data/repositories/game_repository.dart';
 import 'package:frontend/data/services/game_api_service.dart';
 import 'package:frontend/features/auth/cubit/auth_cubit.dart';
@@ -32,8 +33,6 @@ class MyApp extends StatelessWidget {
       child: MultiBlocProvider(
         providers: [
           
-          
-          
           BlocProvider<AuthCubit>(
             create: (context) => AuthCubit(), 
           ),
@@ -61,11 +60,11 @@ class MyApp extends StatelessWidget {
           title: 'MaininAja',
           theme: ThemeData.dark().copyWith(
             scaffoldBackgroundColor: const Color(0xFF121212),
-            
+            textTheme: GoogleFonts.poppinsTextTheme(
+          ThemeData.dark().textTheme
+            )
           ),
-          debugShowCheckedModeBanner: false,
-          
-          
+          debugShowCheckedModeBanner: false,        
           routerConfig: AppRoutes.router,
         ),
       ),
