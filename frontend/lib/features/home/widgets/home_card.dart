@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:frontend/app/app_routes.dart';
 import 'package:frontend/data/models/game_model.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class HomeCard extends StatelessWidget {
   final GameModel game;
@@ -148,25 +149,27 @@ class _MetacriticScore extends StatelessWidget {
 class _PlatformIcons extends StatelessWidget {
   final List<String> platforms;
   const _PlatformIcons({required this.platforms});
-  // ... (kode helper)
   IconData _getIconForPlatform(String platformName) {
-    switch (platformName.toLowerCase()) {
-      case 'pc':
-        return Icons.window_sharp;
-      case 'playstation':
-        return Icons.gamepad_outlined;
-      case 'xbox':
-        return Icons.gamepad;
-      case 'nintendo':
-        return Icons.gamepad_sharp;
-      case 'linux':
-        return Icons.computer;
-      case 'macos':
-        return Icons.apple;
-      default:
-        return Icons.videogame_asset_off;
-    }
+  switch (platformName.toLowerCase()) {
+    case 'pc':
+    case 'windows':
+    case 'microsoft windows':
+      return FontAwesomeIcons.windows;
+
+    case 'playstation':
+    case 'ps4':
+    case 'ps5':
+      return FontAwesomeIcons.playstation;
+
+    case 'xbox':
+    case 'xbox one':
+    case 'xbox series x':
+      return FontAwesomeIcons.xbox;
+
+    default:
+      return FontAwesomeIcons.gamepad;
   }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -177,7 +180,7 @@ class _PlatformIcons extends StatelessWidget {
                 padding: const EdgeInsets.only(right: 6.0),
                 child: Icon(
                   _getIconForPlatform(platform),
-                  color: Colors.grey[400],
+                  color: Colors.white,
                   size: 16,
                 ),
               ))
