@@ -9,10 +9,10 @@ import 'package:frontend/features/auth/cubit/auth_cubit.dart';
 import 'package:frontend/features/detail/cubit/detail_cubit.dart';
 import 'package:frontend/features/home/bloc/home_bloc.dart';
 import 'package:frontend/features/search/bloc/search_bloc.dart';
+import 'package:flutter_web_plugins/url_strategy.dart';
 
 void main() {
-  
-  
+  usePathUrlStrategy();
   final DioClient dioClient = DioClient();
   final GameRepository gameRepository = GameApiService(dioClient);
 
@@ -26,8 +26,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    
-    
     return RepositoryProvider.value(
       value: gameRepository,
       child: MultiBlocProvider(

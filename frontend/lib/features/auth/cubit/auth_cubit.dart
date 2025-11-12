@@ -15,7 +15,7 @@ class AuthCubit extends Cubit<AuthState> {
 
     // Logika palsu: anggap saja user belum login
     // Nanti di sini Anda akan cek (misal: SharedPreferences)
-    const bool isLoggedIn = false; 
+    const bool isLoggedIn = false;
 
     if (isLoggedIn) {
       emit(Authenticated());

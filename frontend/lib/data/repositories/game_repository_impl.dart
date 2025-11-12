@@ -41,7 +41,11 @@ class GameRepositoryImpl implements GameRepository {
 
   @override
   Future<GameModel> getGameDetails({required String id}) async {
-    // ... Logika untuk ambil detail
-    throw UnimplementedError();
+    try {
+      final response = await _dioClient.get('games/$id');
+      return GameModel.fromJson(response.data);
+    } catch (e) {
+      throw Exception('Gagal memuat detail game: $e');
+    }
   }
 }

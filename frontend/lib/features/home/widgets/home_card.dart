@@ -10,10 +10,10 @@ class HomeCard extends StatefulWidget {
   const HomeCard({super.key, required this.game});
 
   @override
-  State<HomeCard> createState() => _HomeTrendingCardState();
+  State<HomeCard> createState() => _HomeCardState();
 }
 
-class _HomeTrendingCardState extends State<HomeCard> {
+class _HomeCardState extends State<HomeCard> {
   bool _isHovered = false;
 
   @override
@@ -45,7 +45,7 @@ class _HomeTrendingCardState extends State<HomeCard> {
                     offset: const Offset(0, 8),
                   ),
                 ]
-              : [], // Hilangkan shadow saat tidak di-hover
+              : [],
         ),
         child: GestureDetector(
           onTap: () {
@@ -54,7 +54,6 @@ class _HomeTrendingCardState extends State<HomeCard> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // --- 1. GAMBAR (Bagian Atas) ---
               ClipRRect(
                 borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(12.0),

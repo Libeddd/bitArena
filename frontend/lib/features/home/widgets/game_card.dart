@@ -26,7 +26,6 @@ class _GameCardState extends State<GameCard> {
 
   @override
   Widget build(BuildContext context) {
-    // Kita gunakan MouseRegion untuk mendeteksi kursor
     return MouseRegion(
       onEnter: (_) => _onHover(true),
       onExit: (_) => _onHover(false),
