@@ -99,7 +99,6 @@ class DetailScreen extends StatelessWidget {
             );
           }
 
-          // 4. Initial State
           return const Center(child: Text('Memuat data...'));
         },
       ),

@@ -2,16 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/app/app_routes.dart'; 
 import 'package:frontend/core/network/dio_client.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:frontend/data/repositories/game_repository.dart';
 import 'package:frontend/data/services/game_api_service.dart';
 import 'package:frontend/features/auth/cubit/auth_cubit.dart';
 import 'package:frontend/features/detail/cubit/detail_cubit.dart';
 import 'package:frontend/features/home/bloc/home_bloc.dart';
 import 'package:frontend/features/search/bloc/search_bloc.dart';
+import 'package:flutter_web_plugins/url_strategy.dart';
 
 void main() {
-  
-  
+  usePathUrlStrategy();
   final DioClient dioClient = DioClient();
   final GameRepository gameRepository = GameApiService(dioClient);
 
@@ -25,14 +26,10 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    
-    
     return RepositoryProvider.value(
       value: gameRepository,
       child: MultiBlocProvider(
         providers: [
-          
-          
           
           BlocProvider<AuthCubit>(
             create: (context) => AuthCubit(), 
@@ -61,11 +58,11 @@ class MyApp extends StatelessWidget {
           title: 'MaininAja',
           theme: ThemeData.dark().copyWith(
             scaffoldBackgroundColor: const Color(0xFF121212),
-            
+            textTheme: GoogleFonts.poppinsTextTheme(
+          ThemeData.dark().textTheme
+            )
           ),
-          debugShowCheckedModeBanner: false,
-          
-          
+          debugShowCheckedModeBanner: false,        
           routerConfig: AppRoutes.router,
         ),
       ),
