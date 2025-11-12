@@ -7,8 +7,12 @@ class GameModel extends Equatable {
   final String name;
   final String backgroundImage;
   final double rating;
-  final String releasedDate; // <-- BARU: Untuk tahun (2025)
-  final List<String> genres; // <-- BARU: Untuk kategori (Horror)
+  final String releasedDate;
+  final List<String> genres;
+  
+  final int metacritic;
+  final int added;
+  final List<String> platforms;
 
   const GameModel({
     required this.id,
@@ -17,6 +21,9 @@ class GameModel extends Equatable {
     required this.rating,
     required this.releasedDate,
     required this.genres,
+    required this.metacritic,
+    required this.added,
+    required this.platforms,
   });
 
   // Factory constructor untuk parsing JSON
@@ -28,21 +35,28 @@ class GameModel extends Equatable {
     
     // Ekstrak tahun rilis
     final String release = json['released'] ?? 'N/A';
-    final String year = release.split('-').first; // Ambil tahunnya saja
+    final String year = release.split('-').first;
+    final List<String> platformList = (json['parent_platforms'] as List? ?? [])
+        .map((p) => p['platform']['name'] as String)
+        .toList();
 
     return GameModel(
       id: json['id'] ?? 0,
       name: json['name'] ?? 'No Name',
       backgroundImage: json['background_image'] ?? 'https://via.placeholder.com/150',
       rating: (json['rating'] ?? 0.0).toDouble(),
-      releasedDate: year, // Simpan tahunnya
-      genres: genreList, // Simpan list kategori
+      releasedDate: year,
+      genres: genreList,
+      metacritic: json['metacritic'] ?? 0,
+      added: json['added'] ?? 0,
+      platforms: platformList,
     );
   }
 
-  // Helper untuk mendapatkan kategori pertama (cth: "Horror")
   String get mainGenre => genres.isNotEmpty ? genres.first : 'Game';
 
   @override
-  List<Object?> get props => [id, name, backgroundImage, rating, releasedDate, genres];
+  List<Object?> get props => [
+    id, name, backgroundImage, rating, releasedDate, genres,
+    metacritic, added, platforms,];
 }
