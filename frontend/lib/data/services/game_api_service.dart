@@ -1,8 +1,8 @@
 // File: lib/data/services/game_api_service.dart
 
-import 'package:frontend/core/network/dio_client.dart';
-import 'package:frontend/data/models/game_model.dart';
-import 'package:frontend/data/repositories/game_repository.dart';
+import 'package:bitArena/core/network/dio_client.dart';
+import 'package:bitArena/data/models/game_model.dart';
+import 'package:bitArena/data/repositories/game_repository.dart';
 
 // INHERITANCE: Mengimplementasikan kontrak GameRepository
 class GameApiService implements GameRepository {

@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:frontend/features/home/bloc/home_bloc.dart';
-import 'package:frontend/features/home/widgets/home_card.dart';
-import 'package:frontend/features/home/widgets/home_banner.dart';
-import 'package:frontend/features/home/widgets/home_sidebar_list.dart';
-// DIKEMBALIKAN: Import GoRouter dan AppRoutes
+import 'package:bitArena/features/home/bloc/home_bloc.dart';
+import 'package:bitArena/features/home/widgets/home_card.dart';
+import 'package:bitArena/features/home/widgets/home_banner.dart';
+import 'package:bitArena/features/home/widgets/home_sidebar_list.dart';
 import 'package:go_router/go_router.dart';
-import 'package:frontend/app/app_routes.dart';
+import 'package:bitArena/app/app_routes.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:frontend/features/home/widgets/game_card_skeleton.dart';
-import 'package:frontend/features/home/widgets/home_banner_skeleton.dart';
-import 'package:frontend/features/home/widgets/home_sidebar_skeleton.dart';
+import 'package:bitArena/features/home/widgets/game_card_skeleton.dart';
+import 'package:bitArena/features/home/widgets/home_banner_skeleton.dart';
+import 'package:bitArena/features/home/widgets/home_sidebar_skeleton.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});

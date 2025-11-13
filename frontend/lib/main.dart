@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:frontend/app/app_routes.dart'; 
-import 'package:frontend/core/network/dio_client.dart';
+import 'package:bitArena/app/app_routes.dart'; 
+import 'package:bitArena/core/network/dio_client.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:frontend/data/repositories/game_repository.dart';
-import 'package:frontend/data/services/game_api_service.dart';
-import 'package:frontend/features/auth/cubit/auth_cubit.dart';
-import 'package:frontend/features/detail/cubit/detail_cubit.dart';
-import 'package:frontend/features/home/bloc/home_bloc.dart';
-import 'package:frontend/features/search/bloc/search_bloc.dart';
+import 'package:bitArena/data/repositories/game_repository.dart';
+import 'package:bitArena/data/services/game_api_service.dart';
+import 'package:bitArena/features/auth/cubit/auth_cubit.dart';
+import 'package:bitArena/features/detail/cubit/detail_cubit.dart';
+import 'package:bitArena/features/home/bloc/home_bloc.dart';
+import 'package:bitArena/features/search/bloc/search_bloc.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 
 void main() {
@@ -55,7 +55,7 @@ class MyApp extends StatelessWidget {
           ),
         ],
         child: MaterialApp.router(
-          title: 'MaininAja',
+          title: 'bitArena',
           theme: ThemeData.dark().copyWith(
             scaffoldBackgroundColor: const Color(0xFF121212),
             textTheme: GoogleFonts.poppinsTextTheme(
