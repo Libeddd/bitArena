@@ -1,4 +1,4 @@
-import 'package:frontend/data/models/game_model.dart';
+import 'package:bitArena/data/models/game_model.dart';
 
 /// Ini adalah kontrak (Abstract Class)
 /// Semua implementasi repository harus mengikuti ini

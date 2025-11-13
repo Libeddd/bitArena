@@ -3,12 +3,10 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:frontend/data/models/game_model.dart'; // Ganti 'frontend' dengan nama project Anda
+import 'package:bitArena/data/models/game_model.dart'; // Ganti 'frontend' dengan nama project Anda
 import 'package:flutter/material.dart' hide CarouselController;
-
-// --- Impor yang benar ---
 import 'package:go_router/go_router.dart';
-import 'package:frontend/app/app_routes.dart'; // Ganti 'frontend' dengan nama project Anda
+import 'package:bitArena/app/app_routes.dart'; // Ganti 'frontend' dengan nama project Anda
 
 class HomeBannerCarousel extends StatelessWidget {
   final List<GameModel> games;

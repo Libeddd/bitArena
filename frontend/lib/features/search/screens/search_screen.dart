@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:frontend/features/home/widgets/game_card.dart'; // Kita pakai ulang GameCard
-import 'package:frontend/features/search/bloc/search_bloc.dart';
+import 'package:bitArena/features/home/widgets/game_card.dart'; // Kita pakai ulang GameCard
+import 'package:bitArena/features/search/bloc/search_bloc.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:frontend/features/home/widgets/game_card_skeleton.dart';
+import 'package:bitArena/features/home/widgets/game_card_skeleton.dart';
 
 class SearchScreen extends StatelessWidget {
   // Kita terima query dari GoRouter

@@ -2,11 +2,11 @@
 
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:frontend/data/models/game_model.dart';
+import 'package:bitArena/data/models/game_model.dart';
 
 // --- TAMBAHKAN DUA IMPORT INI ---
 import 'package:go_router/go_router.dart';
-import 'package:frontend/app/app_routes.dart';
+import 'package:bitArena/app/app_routes.dart';
 
 class HomeSidebarList extends StatelessWidget {
   final List<GameModel> games;
