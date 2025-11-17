@@ -85,21 +85,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // Helper untuk Item Menu (cth: "Home", "PC")
-  Widget _buildMenuItem(BuildContext context, {required IconData icon, required String title}) {
-    return ListTile(
-      leading: FaIcon(icon, color: Colors.grey[400], size: 20),
-      title: Text(
-        title,
-        style: GoogleFonts.poppins(color: Colors.white, fontSize: 15),
-      ),
-      onTap: () {
-        // TODO: Tambahkan logika navigasi di sini
-        Navigator.pop(context);
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(

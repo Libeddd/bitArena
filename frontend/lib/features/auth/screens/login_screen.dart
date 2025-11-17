@@ -18,7 +18,6 @@ class LoginScreen extends StatelessWidget {
     const Color kRightBgColor = Color(0xFF1E1E1E); // Kanan: Hitam Pekat
     const Color kLeftBgColor = Colors.white;       // Kiri: Putih (untuk ilustrasi)
     const Color kPrimaryRed = Color(0xFFE53935);   // Aksen Merah
-    const Color kAccentYellow = Color(0xFFFFEB3B); // Tombol Kuning
     const Color kInputFill = Color(0xFF2C2C2C);    // Warna isian kolom teks
 
     // Fungsi untuk membuat Input Field yang bulat (Pill shape)

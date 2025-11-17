@@ -23,7 +23,7 @@ class DioClient {
   Future<Response> get(String path, {Map<String, dynamic>? queryParameters}) async {
     try {
       return await _dio.get(path, queryParameters: queryParameters);
-    } on DioException catch (e) {
+    } on DioException {
       // Tangani error di sini
       rethrow;
     }

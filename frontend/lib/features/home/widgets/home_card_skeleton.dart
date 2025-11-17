@@ -1,5 +1,3 @@
-// File: lib/features/home/widgets/home_trending_card_skeleton.dart (FILE BARU)
-
 import 'package:flutter/material.dart';
 
 class HomeCardSkeleton extends StatelessWidget {

@@ -24,20 +24,6 @@ abstract class GameRepositoryImpl implements GameRepository {
   }
 
   @override
-  Future<List<GameModel>> searchGames({required String query}) async {
-    try {
-      final response = await _dioClient.get(
-        'games',
-        queryParameters: {'search': query},
-      );
-      final List results = response.data['results'] as List;
-      return results.map((game) => GameModel.fromJson(game)).toList();
-    } catch (e) {
-      throw Exception('Gagal mencari game: $e');
-    }
-  }
-
-  @override
   Future<GameModel> getGameDetails({required String id}) async {
     try {
       final response = await _dioClient.get('games/$id');

@@ -7,8 +7,6 @@ import 'package:bitArena/data/repositories/game_repository.dart';
 // INHERITANCE: Mengimplementasikan kontrak GameRepository
 class GameApiService implements GameRepository {
   final DioClient _dioClient;
-
-  // Dependency Injection melalui constructor
   GameApiService(this._dioClient);
 
   @override
@@ -23,20 +21,6 @@ class GameApiService implements GameRepository {
       return results.map((game) => GameModel.fromJson(game)).toList();
     } catch (e) {
       throw Exception('Gagal memuat game: $e');
-    }
-  }
-
-  @override
-  Future<List<GameModel>> searchGames({required String query}) async {
-    try {
-      final response = await _dioClient.get(
-        'games',
-        queryParameters: {'search': query}, // API menggunakan 'search'
-      );
-      final List results = response.data['results'] as List;
-      return results.map((game) => GameModel.fromJson(game)).toList();
-    } catch (e) {
-      throw Exception('Gagal mencari game: $e');
     }
   }
 
@@ -64,6 +48,31 @@ class GameApiService implements GameRepository {
       return results.map((game) => GameModel.fromJson(game)).toList();
     } catch (e) {
       throw Exception('Gagal memfilter game berdasarkan genre: $e');
+    }
+  }
+  @override
+  Future<List<GameModel>> searchGames({
+    required String query,
+    Map<String, dynamic> filters = const {}, // Terima filter (genre, platform, sort)
+    int page = 1,
+  }) async {
+    try {
+      // Gabungkan semua parameter
+      final queryParameters = <String, dynamic>{
+        'search': query,
+        'page': page,
+      };
+      // Tambahkan filter jika ada (cth: {'genres': '4', 'ordering': 'name'})
+      queryParameters.addAll(filters); 
+
+      final response = await _dioClient.get(
+        'games',
+        queryParameters: queryParameters,
+      );
+      final List results = response.data['results'] as List;
+      return results.map((game) => GameModel.fromJson(game)).toList();
+    } catch (e) {
+      throw Exception('Gagal mencari game: $e');
     }
   }
 }
