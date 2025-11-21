@@ -1,6 +1,6 @@
-import 'package:bitArena/core/network/dio_client.dart';
-import 'package:bitArena/data/models/game_model.dart';
-import 'package:bitArena/data/repositories/game_repository.dart';
+import 'package:bitarena/core/network/dio_client.dart';
+import 'package:bitarena/data/models/game_model.dart';
+import 'package:bitarena/data/repositories/game_repository.dart';
 
 // INHERITANCE: Mengimplementasikan kontrak GameRepository
 abstract class GameRepositoryImpl implements GameRepository {

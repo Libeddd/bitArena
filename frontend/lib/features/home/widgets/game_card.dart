@@ -3,8 +3,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:bitArena/app/app_routes.dart';
-import 'package:bitArena/data/models/game_model.dart';
+import 'package:bitarena/app/app_routes.dart';
+import 'package:bitarena/data/models/game_model.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 
 // --- UBAH JADI STATELESSWIDGET ---

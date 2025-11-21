@@ -1,4 +1,4 @@
-import 'package:bitArena/data/models/game_model.dart';
+import 'package:bitarena/data/models/game_model.dart';
 
 abstract class GameRepository {
   Future<List<GameModel>> getGames({int page = 1});

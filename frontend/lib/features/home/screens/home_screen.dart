@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:bitArena/features/home/bloc/home_bloc.dart';
-import 'package:bitArena/features/home/widgets/home_card.dart';
-import 'package:bitArena/features/home/widgets/game_card.dart';
-import 'package:bitArena/features/home/widgets/home_banner.dart';
+import 'package:bitarena/features/home/bloc/home_bloc.dart';
+import 'package:bitarena/features/home/widgets/home_card.dart';
+import 'package:bitarena/features/home/widgets/game_card.dart';
+import 'package:bitarena/features/home/widgets/home_banner.dart';
 import 'package:go_router/go_router.dart';
-import 'package:bitArena/app/app_routes.dart';
+import 'package:bitarena/app/app_routes.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:bitArena/features/home/widgets/game_card_skeleton.dart';
-import 'package:bitArena/features/home/widgets/home_banner_skeleton.dart';
+import 'package:bitarena/features/home/widgets/game_card_skeleton.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 

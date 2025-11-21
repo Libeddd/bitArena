@@ -3,10 +3,10 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:bitArena/data/models/game_model.dart'; // Ganti 'frontend' dengan nama project Anda
+import 'package:bitarena/data/models/game_model.dart'; // Ganti 'frontend' dengan nama project Anda
 import 'package:flutter/material.dart' hide CarouselController;
 import 'package:go_router/go_router.dart';
-import 'package:bitArena/app/app_routes.dart'; // Ganti 'frontend' dengan nama project Anda
+import 'package:bitarena/app/app_routes.dart'; // Ganti 'frontend' dengan nama project Anda
 
 class HomeBannerCarousel extends StatelessWidget {
   final List<GameModel> games;
@@ -105,7 +105,7 @@ class _BannerCard extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    
+
                   const SizedBox(height: 16),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(

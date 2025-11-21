@@ -1,18 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:bitArena/app/app_routes.dart'; 
-import 'package:bitArena/core/network/dio_client.dart';
+import 'package:bitarena/app/app_routes.dart'; 
+import 'package:bitarena/core/network/dio_client.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:bitArena/data/repositories/game_repository.dart';
-import 'package:bitArena/data/services/game_api_service.dart';
-import 'package:bitArena/features/auth/cubit/auth_cubit.dart';
-import 'package:bitArena/features/detail/cubit/detail_cubit.dart';
-import 'package:bitArena/features/home/bloc/home_bloc.dart';
-import 'package:bitArena/features/search/bloc/search_bloc.dart';
-import 'package:bitArena/features/browse/bloc/browse_bloc.dart';
+import 'package:bitarena/data/repositories/game_repository.dart';
+import 'package:bitarena/data/services/game_api_service.dart';
+import 'package:bitarena/features/auth/cubit/auth_cubit.dart';
+import 'package:bitarena/features/detail/cubit/detail_cubit.dart';
+import 'package:bitarena/features/home/bloc/home_bloc.dart';
+import 'package:bitarena/features/search/bloc/search_bloc.dart';
+import 'package:bitarena/features/browse/bloc/browse_bloc.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:bitarena/firebase_options.dart'; 
+import 'package:bitarena/features/browse/bloc/browse_bloc.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform, 
+  );
+  
+
   usePathUrlStrategy();
   final DioClient dioClient = DioClient();
   final GameRepository gameRepository = GameApiService(dioClient);
