@@ -10,7 +10,13 @@ import 'package:bitArena/app/app_routes.dart'; // Ganti 'frontend' dengan nama p
 
 class HomeBannerCarousel extends StatelessWidget {
   final List<GameModel> games;
-  const HomeBannerCarousel({super.key, required this.games});
+  final double height; 
+
+  const HomeBannerCarousel({
+    super.key, 
+    required this.games,
+    this.height = 400.0, // Default disamakan dengan HomeScreen
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -23,31 +29,30 @@ class HomeBannerCarousel extends StatelessWidget {
       options: CarouselOptions(
         autoPlay: true,
         autoPlayInterval: const Duration(seconds: 5),
-        aspectRatio: 16 / 9,
-        viewportFraction: 0.9,
-        enlargeCenterPage: true,
+        height: height,         
+        viewportFraction: 1.0,
+        enlargeCenterPage: false,
       ),
     );
   }
 }
-
 class _BannerCard extends StatelessWidget {
   final GameModel game;
   const _BannerCard({required this.game});
 
   @override
   Widget build(BuildContext context) {
-    // --- KEMBALIKAN KE GESTUREDETECTOR ---
-    // Ini adalah widget yang tepat untuk banner besar
+    final String genresText = game.genres.take(3).join(' • ');
+    final String subtitleText = "$genresText  |  ${game.releasedDate}";
+
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
         onTap: () {
         context.push('${AppRoutes.detail}/${game.id}');
       },
-      // Child-nya adalah ClipRRect (bukan bagian dari InkWell)
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.zero,
         child: Stack(
           fit: StackFit.expand,
           children: [
@@ -76,24 +81,31 @@ class _BannerCard extends StatelessWidget {
 
             // 3. Konten Teks
             Padding(
-              padding: const EdgeInsets.all(32.0),
+              padding: const EdgeInsets.all(24.0),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.end,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     game.name.toUpperCase(),
-                    style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
                           letterSpacing: 2,
                         ),
                   ),
                   const SizedBox(height: 8),
-                  const Text(
-                    "Experience Mind-Blowing Co-op. Save on Split Fiction.",
-                    style: TextStyle(color: Colors.white70, fontSize: 16),
-                  ),
+                    Text(
+                      subtitleText, 
+                      style: const TextStyle(
+                        color: Colors.white70, 
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    
                   const SizedBox(height: 16),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
@@ -105,7 +117,7 @@ class _BannerCard extends StatelessWidget {
                        context.push('${AppRoutes.detail}/${game.id}');
                     },
                     child: const Text(
-                      "Save Now",
+                      "Download Now",
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ),
