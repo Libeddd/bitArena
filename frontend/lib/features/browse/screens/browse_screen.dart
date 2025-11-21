@@ -1,9 +1,9 @@
 // File: lib/features/browse/screens/browse_screen.dart (FILE BARU)
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:bitArena/features/browse/bloc/browse_bloc.dart';
-import 'package:bitArena/features/home/widgets/home_card.dart'; // <-- UI KARTU BARU ANDA
-import 'package:bitArena/features/home/widgets/home_card_skeleton.dart'; // <-- UI SKELETON
+import 'package:bitarena/features/browse/bloc/browse_bloc.dart';
+import 'package:bitarena/features/home/widgets/home_card.dart'; // <-- UI KARTU BARU ANDA
+import 'package:bitarena/features/home/widgets/home_card_skeleton.dart'; // <-- UI SKELETON
 import 'package:shimmer/shimmer.dart';
 import 'package:google_fonts/google_fonts.dart';
 

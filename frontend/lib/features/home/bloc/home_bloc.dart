@@ -1,7 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:bitArena/data/models/game_model.dart';
-import 'package:bitArena/data/repositories/game_repository.dart';
+import 'package:bitarena/data/models/game_model.dart';
+import 'package:bitarena/data/repositories/game_repository.dart';
 
 // --- BAGIAN 1: EVENT ---
 abstract class HomeEvent extends Equatable {

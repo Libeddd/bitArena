@@ -1,11 +1,10 @@
-// File: lib/features/auth/screens/login_screen.dart (REVISI FINAL: ASET ASLI + RESPONSIF)
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:bitArena/app/app_routes.dart';
-import 'package:bitArena/features/auth/cubit/auth_cubit.dart';
-import 'package:bitArena/features/auth/cubit/auth_state.dart';
+import 'package:bitarena/app/app_routes.dart';
+import 'package:bitarena/features/auth/cubit/auth_cubit.dart';
+import 'package:bitarena/features/auth/cubit/auth_state.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -17,12 +16,12 @@ class LoginScreen extends StatelessWidget {
     final passwordController = TextEditingController();
 
     // --- Warna Tema Asli Anda ---
-    const Color kRightBgColor = Color(0xFF1E1E1E); // Kanan: Hitam Pekat
-    const Color kLeftBgColor = Colors.white;       // Kiri: Putih
-    const Color kPrimaryRed = Color(0xFFE53935);   // Aksen Merah
-    const Color kInputFill = Color(0xFF2C2C2C);    // Warna isian kolom teks
+    const Color kRightBgColor = Color(0xFF1E1E1E); 
+    const Color kLeftBgColor = Colors.white;       
+    const Color kPrimaryRed = Color(0xFFE53935);   
+    const Color kInputFill = Color(0xFF2C2C2C);    
 
-    // --- Helper: Input Field Bulat (Kode Asli Anda) ---
+    // --- Helper: Input Field Bulat ---
     Widget buildRoundedInput({
       required String hint,
       required IconData icon,
@@ -52,18 +51,18 @@ class LoginScreen extends StatelessWidget {
       );
     }
 
-    // --- Helper: Widget Form (Agar bisa dipakai ulang) ---
+    // --- Helper: Widget Form ---
     Widget buildLoginForm(bool isMobile) {
       return Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: isMobile ? CrossAxisAlignment.center : CrossAxisAlignment.start,
         children: [
-          // Jika Mobile, tampilkan Logo di sini (lebih kecil)
+          // Logo untuk Mobile (di atas)
           if (isMobile) ...[
             Container(
               padding: const EdgeInsets.all(20),
               decoration: const BoxDecoration(
-                color: Colors.white, // Background putih utk logo agar terlihat
+                color: Colors.white,
                 shape: BoxShape.circle,
               ),
               child: Image.asset(
@@ -85,7 +84,7 @@ class LoginScreen extends StatelessWidget {
             const SizedBox(height: 40),
           ],
 
-          // Judul
+          // Header
           const Text(
             'Welcome!',
             style: TextStyle(
@@ -101,7 +100,7 @@ class LoginScreen extends StatelessWidget {
           ),
           const SizedBox(height: 40),
 
-          // Input Email
+          // Inputs
           buildRoundedInput(
             hint: 'Your email',
             icon: Icons.email_outlined,
@@ -109,7 +108,6 @@ class LoginScreen extends StatelessWidget {
           ),
           const SizedBox(height: 16),
 
-          // Input Password
           buildRoundedInput(
             hint: 'Password',
             icon: Icons.lock_outline,
@@ -117,8 +115,8 @@ class LoginScreen extends StatelessWidget {
             isPassword: true,
           ),
           
-          // Password Strength
           const SizedBox(height: 16),
+          // Password Strength visual
           Row(
             mainAxisAlignment: isMobile ? MainAxisAlignment.center : MainAxisAlignment.start,
             children: [
@@ -133,7 +131,7 @@ class LoginScreen extends StatelessWidget {
           ),
           const SizedBox(height: 40),
 
-          // Tombol Aksi
+          // Tombol Login & Sign Up
           Row(
             children: [
               Expanded(
@@ -172,6 +170,44 @@ class LoginScreen extends StatelessWidget {
               ),
             ],
           ),
+
+          // --- BAGIAN TOMBOL GOOGLE ---
+          const SizedBox(height: 30),
+          
+          // Divider
+          Row(
+            children: [
+              Expanded(child: Divider(color: Colors.grey[800])),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                child: Text("Or continue with", style: TextStyle(color: Colors.grey, fontSize: 12)),
+              ),
+              Expanded(child: Divider(color: Colors.grey[800])),
+            ],
+          ),
+
+          const SizedBox(height: 24),
+
+          // Tombol Google
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: () {
+                // Panggil fungsi loginGoogle dari AuthCubit
+                context.read<AuthCubit>().loginGoogle();
+              },
+              icon: const Icon(FontAwesomeIcons.google, color: Colors.white, size: 18),
+              label: const Text("Sign in with Google", style: TextStyle(fontWeight: FontWeight.bold)),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: Colors.white,
+                side: BorderSide(color: Colors.grey[700]!),
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+              ),
+            ),
+          ),
         ],
       );
     }
@@ -183,14 +219,14 @@ class LoginScreen extends StatelessWidget {
             context.go(AppRoutes.home);
           }
         },
-        // --- LOGIKA RESPONSIF (LayoutBuilder) ---
+        // Layout Builder untuk Responsif
         child: LayoutBuilder(
           builder: (context, constraints) {
-            // Jika Desktop (> 800px)
+            // Desktop Layout (> 800px)
             if (constraints.maxWidth > 800) {
               return Row(
                 children: [
-                  // KIRI: Panel Putih dengan Logo Besar
+                  // Panel Kiri (Logo)
                   Expanded(
                     flex: 1,
                     child: Container(
@@ -199,7 +235,7 @@ class LoginScreen extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Image.asset(
-                            'assets/logo_login.png', // ASET LOGO ANDA
+                            'assets/logo_login.png', // Logo Aset
                             width: 250,
                             height: 250,
                             fit: BoxFit.contain,
@@ -217,7 +253,7 @@ class LoginScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  // KANAN: Form Login
+                  // Panel Kanan (Form)
                   Expanded(
                     flex: 1,
                     child: Container(
@@ -227,7 +263,7 @@ class LoginScreen extends StatelessWidget {
                         child: SingleChildScrollView(
                           child: ConstrainedBox(
                             constraints: const BoxConstraints(maxWidth: 400),
-                            child: buildLoginForm(false), // false = bukan mobile
+                            child: buildLoginForm(false),
                           ),
                         ),
                       ),
@@ -236,14 +272,14 @@ class LoginScreen extends StatelessWidget {
                 ],
               );
             } 
-            // Jika Mobile (< 800px)
+            // Mobile Layout (< 800px)
             else {
               return Container(
-                color: kRightBgColor, // Full background hitam
+                color: kRightBgColor,
                 padding: const EdgeInsets.symmetric(horizontal: 24.0),
                 child: Center(
                   child: SingleChildScrollView(
-                    child: buildLoginForm(true), // true = mobile mode (logo di atas)
+                    child: buildLoginForm(true),
                   ),
                 ),
               );

@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "631423659626",
+    "project_id": "bitarena-da8f4",
+    "storage_bucket": "bitarena-da8f4.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:631423659626:android:9b91e474d17bacc6662413",
+        "android_client_info": {
+          "package_name": "com.bitarena.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "631423659626-rc74ubnk5fr2v4tepfh0hqoje507rbik.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.bitarena.app",
+            "certificate_hash": "f8486a45fb0086b14b5a628c451f7bc3b53a396a"
+          }
+        },
+        {
+          "client_id": "631423659626-nbqm8goei2a845g7ntuh23plh1cp3pfo.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCF4y5KtGpxl4eCTDnXPTpdnBMUwuXVAqM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "631423659626-nbqm8goei2a845g7ntuh23plh1cp3pfo.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

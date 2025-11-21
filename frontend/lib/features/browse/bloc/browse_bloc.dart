@@ -1,8 +1,8 @@
 // File: lib/features/browse/bloc/browse_bloc.dart (FILE BARU)
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:bitArena/data/models/game_model.dart';
-import 'package:bitArena/data/repositories/game_repository.dart';
+import 'package:bitarena/data/models/game_model.dart';
+import 'package:bitarena/data/repositories/game_repository.dart';
 
 // --- EVENT ---
 abstract class BrowseEvent extends Equatable {

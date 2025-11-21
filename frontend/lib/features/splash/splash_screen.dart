@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:bitArena/app/app_routes.dart';
-import 'package:bitArena/features/auth/cubit/auth_cubit.dart';
-import 'package:bitArena/features/auth/cubit/auth_state.dart';
+import 'package:bitarena/app/app_routes.dart';
+import 'package:bitarena/features/auth/cubit/auth_cubit.dart';
+import 'package:bitarena/features/auth/cubit/auth_state.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class SplashScreen extends StatefulWidget {

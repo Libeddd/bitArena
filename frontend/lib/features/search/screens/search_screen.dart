@@ -2,11 +2,11 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:bitArena/features/home/widgets/game_card.dart';
-import 'package:bitArena/features/search/bloc/search_bloc.dart';
+import 'package:bitarena/features/home/widgets/game_card.dart';
+import 'package:bitarena/features/search/bloc/search_bloc.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:bitArena/features/home/widgets/game_card_skeleton.dart';
+import 'package:bitarena/features/home/widgets/game_card_skeleton.dart';
 
 // --- 1. UBAH JADI STATEFULWIDGET ---
 class SearchScreen extends StatefulWidget {

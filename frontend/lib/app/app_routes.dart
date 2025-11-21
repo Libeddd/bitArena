@@ -3,12 +3,12 @@
 import 'package:bitArena/features/statics/about_screen.dart';
 import 'package:bitArena/features/statics/contact_screen.dart';
 import 'package:go_router/go_router.dart';
-import 'package:bitArena/features/splash/splash_screen.dart';
-import 'package:bitArena/features/auth/screens/login_screen.dart';
-import 'package:bitArena/features/home/screens/home_screen.dart';
-import 'package:bitArena/features/detail/screens/detail_screen.dart';
-import 'package:bitArena/features/search/screens/search_screen.dart';
-import 'package:bitArena/features/browse/screens/browse_screen.dart';
+import 'package:bitarena/features/splash/splash_screen.dart';
+import 'package:bitarena/features/auth/screens/login_screen.dart';
+import 'package:bitarena/features/home/screens/home_screen.dart';
+import 'package:bitarena/features/detail/screens/detail_screen.dart';
+import 'package:bitarena/features/search/screens/search_screen.dart';
+import 'package:bitarena/features/browse/screens/browse_screen.dart';
 
 
 class AppRoutes {
