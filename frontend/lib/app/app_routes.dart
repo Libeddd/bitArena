@@ -1,5 +1,7 @@
 // File: lib/app/app_routes.dart
 
+import 'package:bitArena/features/statics/about_screen.dart';
+import 'package:bitArena/features/statics/contact_screen.dart';
 import 'package:go_router/go_router.dart';
 import 'package:bitArena/features/splash/splash_screen.dart';
 import 'package:bitArena/features/auth/screens/login_screen.dart';
@@ -16,6 +18,9 @@ class AppRoutes {
   static const String detail = '/detail';
   static const String search = '/search';
   static const String browse = '/browse';
+  static const about = "/about";
+  static const contact = "/contact";
+
 
 
   static final GoRouter router = GoRouter(
@@ -52,6 +57,16 @@ class AppRoutes {
           return SearchScreen(query: query);
         },
       ),
+      GoRoute(
+        path: AppRoutes.about,
+        builder: (context, state) => const AboutScreen(),
+      ),
+
+      GoRoute(
+        path: AppRoutes.contact,
+        builder: (context, state) => ContactScreen(),
+      ),
+
       GoRoute(
         // Rute ini akan menerima query params
         // Cth: /browse?title=PC&platforms=4
