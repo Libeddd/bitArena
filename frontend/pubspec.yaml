@@ -6,9 +6,12 @@ publish_to: 'none'
 version: 1.0.0+1
 
 environment:
-  sdk: ^3.9.2
+  sdk: ">=3.0.0 <4.0.0"
 
 dependencies:
+  flutter:
+    sdk: flutter
+
   cached_network_image: ^3.3.0
   carousel_slider: ^5.1.1
   cupertino_icons: ^1.0.8
@@ -29,6 +32,7 @@ dependencies:
   injectable: ^2.3.2
   loading_animation_widget: ^1.2.1
   shimmer: ^3.0.0
+  url_launcher: ^6.2.5
 
 dev_dependencies:
   flutter_lints: ^5.0.0
@@ -41,3 +45,4 @@ flutter:
   assets:
     - assets/logo.png
     - assets/logo_login.png
+    - assets/amine.jpeg
