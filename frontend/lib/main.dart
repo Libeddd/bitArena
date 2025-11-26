@@ -13,7 +13,7 @@ import 'package:bitarena/features/browse/bloc/browse_bloc.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:bitarena/firebase_options.dart'; 
-import 'package:bitarena/features/browse/bloc/browse_bloc.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,8 +21,9 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform, 
   );
-  
 
+  await FirebaseAuth.instance.setPersistence(Persistence.LOCAL);
+  
   usePathUrlStrategy();
   final DioClient dioClient = DioClient();
   final GameRepository gameRepository = GameApiService(dioClient);

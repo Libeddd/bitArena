@@ -16,7 +16,12 @@ class GameCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        context.push('${AppRoutes.detail}/${game.id}');
+        context.pushNamed(
+          AppRoutes.detail,
+          pathParameters: {
+            'id': game.id.toString(),
+          },
+        );
       },
       child: Container(
         // --- UI KARTU BARU ---

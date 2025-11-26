@@ -33,6 +33,18 @@ class AuthCubit extends Cubit<AuthState> {
     }
   }
 
+  void signUp(String email, String password, String name) async {
+    emit(AuthLoading());
+    try {
+      await _authService.signUpWithEmail(email, password, name);
+      print("Sign Up Berhasil");
+      emit(Authenticated());
+    } catch (e) {
+      print("Sign Up Gagal: $e");
+      emit(Unauthenticated());
+    }
+  }
+
   void loginGoogle() async {
     print("AuthCubit: Memulai Login Google..."); // LOG 1
     emit(AuthLoading());

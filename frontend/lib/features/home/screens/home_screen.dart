@@ -1,8 +1,9 @@
+import 'package:bitarena/features/home/widgets/game_card.dart';
+import 'package:bitarena/features/home/widgets/home_card_skeleton.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:bitarena/features/home/bloc/home_bloc.dart';
 import 'package:bitarena/features/home/widgets/home_card.dart';
-import 'package:bitarena/features/home/widgets/game_card.dart';
 import 'package:bitarena/features/home/widgets/home_banner.dart';
 import 'package:go_router/go_router.dart';
 import 'package:bitarena/app/app_routes.dart';
@@ -10,6 +11,8 @@ import 'package:shimmer/shimmer.dart';
 import 'package:bitarena/features/home/widgets/game_card_skeleton.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:bitarena/features/auth/cubit/auth_cubit.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -20,12 +23,22 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final _scrollController = ScrollController();
+  
+  // Ambil user saat ini dari Firebase
+  final User? currentUser = FirebaseAuth.instance.currentUser;
 
   @override
   void initState() {
     super.initState();
     context.read<HomeBloc>().add(HomeFetchList());
     _scrollController.addListener(_onScroll);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _refreshUserData();
+    });
+  }
+
+  Future<void> _refreshUserData() async {
+    await FirebaseAuth.instance.currentUser?.reload();
   }
 
   @override
@@ -44,7 +57,6 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  // Helper untuk Judul
   Widget _buildSectionTitle(String title) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16.0, 20.0, 16.0, 8.0),
@@ -59,9 +71,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // Helper widget untuk MenuItem di Drawer
-  // (Anda bisa memindahkannya ke file terpisah atau biarkan di bawah file ini seperti sebelumnya)
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -74,32 +83,68 @@ class _HomeScreenState extends State<HomeScreen> {
         elevation: 0,
       ),
       
-      // --- DRAWER (Tidak Berubah) ---
+      // --- DRAWER DIPERBARUI ---
       drawer: Drawer(
-        backgroundColor: const Color(0xFF1F1F1F), // Hitam senada
+        backgroundColor: const Color(0xFF1F1F1F),
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
-            DrawerHeader(
-              decoration: const BoxDecoration(color: Color(0xFF1F1F1F)),
-              child: Text(
-                'bitArena', 
-                style: GoogleFonts.poppins(
-                  color: Colors.white,
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+            StreamBuilder<User?>(
+              initialData: FirebaseAuth.instance.currentUser,
+              stream: FirebaseAuth.instance.userChanges(), 
+              builder: (context, snapshot) {
+                final currentUser = snapshot.data;
+                if (currentUser == null) {
+                   return const UserAccountsDrawerHeader(
+                    decoration: BoxDecoration(color: Color(0xFF1F1F1F)),
+                    accountName: Text("Tamu", style: TextStyle(color: Colors.white)),
+                    accountEmail: Text("Silakan login", style: TextStyle(color: Colors.grey)),
+                    currentAccountPicture: CircleAvatar(
+                      backgroundColor: Colors.grey,
+                      child: Icon(Icons.login, color: Colors.white),
+                    ),
+                  );
+                }
+
+                final String initials = (currentUser.displayName != null && currentUser.displayName!.isNotEmpty)
+                    ? currentUser.displayName![0].toUpperCase()
+                    : 'U';
+
+                return UserAccountsDrawerHeader(
+                  decoration: const BoxDecoration(color: Color(0xFF1F1F1F)),
+                  accountName: Text(
+                    currentUser.displayName ?? 'Pengguna', // Hapus tanda tanya
+                    style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                  accountEmail: Text(
+                    currentUser.email ?? 'No Email',
+                    style: GoogleFonts.poppins(color: Colors.grey[400], fontSize: 12),
+                  ),
+                 currentAccountPicture: CircleAvatar(
+                    backgroundColor: Colors.blueAccent, // Warna background avatar tetap
+                    child: Text(
+                      initials,
+                      style: GoogleFonts.poppins(
+                        fontSize: 24, 
+                        fontWeight: FontWeight.bold, 
+                        color: Colors.white
+                      ),
+                    ),
+                  ),
+                );
+              },
             ),
+
             const _MenuItem(icon: Icons.home_outlined, title: 'Home', filters: {}),
             const _MenuItem(icon: Icons.info_outline, title: 'About', filters: {}),
-            const _MenuItem(icon: Icons.mail_outline, title: 'Contact', filters: {}),
+            
             const Divider(color: Colors.black26),
             
             _buildSectionTitle('Platforms'),
             const _MenuItem(icon: FontAwesomeIcons.windows, title: 'PC', filters: {'platforms': '4'}),
             const _MenuItem(icon: FontAwesomeIcons.playstation, title: 'Playstation 4', filters: {'platforms': '18'}),
-            const _MenuItem(icon: FontAwesomeIcons.xbox, title: 'Xbox', filters: {'platforms': '1'}),
+            const _MenuItem(icon: FontAwesomeIcons.xbox, title: 'Xbox One', filters: {'platforms': '1'}),
+            
             const Divider(color: Colors.black26),
 
             _buildSectionTitle('Genres'),
@@ -108,6 +153,26 @@ class _HomeScreenState extends State<HomeScreen> {
             const _MenuItem(icon: FontAwesomeIcons.mapLocationDot, title: 'Adventure', filters: {'genres': 'adventure'}),
             const _MenuItem(icon: FontAwesomeIcons.shieldHalved, title: 'RPG', filters: {'genres': 'role-playing-games-rpg'}),
             const _MenuItem(icon: FontAwesomeIcons.car, title: 'Simulation', filters: {'genres': 'simulation'}),
+
+            const Divider(color: Colors.black26),
+
+            // 2. TOMBOL LOGOUT
+            ListTile(
+              leading: const Icon(Icons.logout, color: Colors.redAccent),
+              title: Text(
+                'Logout',
+                style: GoogleFonts.poppins(
+                  color: Colors.redAccent,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              onTap: () {
+                Navigator.pop(context);
+                context.read<AuthCubit>().logout();
+                context.go(AppRoutes.login);
+              },
+            ),
+            const SizedBox(height: 20),
           ],
         ),
       ),
@@ -147,7 +212,6 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  
                   // --- 1. BANNER SECTION ---
                   BlocBuilder<HomeBloc, HomeState>(
                     builder: (context, state) {
@@ -174,11 +238,11 @@ class _HomeScreenState extends State<HomeScreen> {
                     },
                   ),
 
-                  // --- 2. FEATURED GAMES (BEKAS SIDEBAR) ---
+                  // --- 2. FEATURED GAMES ---
                   Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Text(
-                      'Featured Games',
+                      'Featured Games', 
                       style: Theme.of(context).textTheme.headlineSmall
                           ?.copyWith(fontWeight: FontWeight.bold),
                     ),
@@ -187,7 +251,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   BlocBuilder<HomeBloc, HomeState>(
                     builder: (context, state) {
                       if (state is HomeLoading || state is HomeInitial) {
-                        // Skeleton Grid untuk Featured
                         return Shimmer.fromColors(
                           baseColor: Colors.grey[850]!,
                           highlightColor: Colors.grey[700]!,
@@ -196,8 +259,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             physics: const NeverScrollableScrollPhysics(),
                             shrinkWrap: true,
                             gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                              maxCrossAxisExtent: 200, // Ukuran kartu
-                              childAspectRatio: 0.6,   // Kotak (sesuai desain baru)
+                              maxCrossAxisExtent: 200, 
+                              childAspectRatio: 0.6,   
                               crossAxisSpacing: 16,
                               mainAxisSpacing: 16,
                             ),
@@ -207,24 +270,21 @@ class _HomeScreenState extends State<HomeScreen> {
                         );
                       }
                       if (state is HomeSuccess) {
-                        // Ambil 5 game setelah banner (bekas sidebar)
-                        final sidebarGames = state.games.skip(5).take(5).toList();
-
+                        final featuredGames = state.games.skip(5).take(5).toList();
                         return GridView.builder(
                           padding: const EdgeInsets.symmetric(horizontal: 16.0),
                           physics: const NeverScrollableScrollPhysics(),
                           shrinkWrap: true,
                           gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
                             maxCrossAxisExtent: 200, 
-                            childAspectRatio: 0.6, // Sesuaikan rasio kartu HomeCard
+                            childAspectRatio: 0.6,   
                             crossAxisSpacing: 16,
                             mainAxisSpacing: 16,
                           ),
-                          itemCount: sidebarGames.length,
+                          itemCount: featuredGames.length,
                           itemBuilder: (context, index) {
-                            final game = sidebarGames[index];
-                            // Gunakan HomeCard (desain baru seperti searching)
-                            return GameCard(game: game);
+                            final game = featuredGames[index];
+                            return GameCard(game: game); 
                           },
                         );
                       }
@@ -232,7 +292,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     },
                   ),
 
-                  // --- 3. TRENDING GAMES (GRID UTAMA) ---
+                  // --- 3. TRENDING GAMES ---
                   Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Text(
@@ -259,7 +319,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               mainAxisSpacing: 16,
                             ),
                             itemCount: 6,
-                            itemBuilder: (context, index) => const GameCardSkeleton(),
+                            itemBuilder: (context, index) => const HomeCardSkeleton(),
                           ),
                         );
                       }
@@ -271,7 +331,6 @@ class _HomeScreenState extends State<HomeScreen> {
                           return const Center(child: Text('Game tidak ditemukan.'));
                         }
 
-                        // Ambil sisa game (setelah 10 game pertama)
                         final gridGames = state.games.skip(10).toList();
 
                         return Column(
@@ -282,7 +341,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               shrinkWrap: true,
                               gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
                                 maxCrossAxisExtent: 400,
-                                childAspectRatio: 1.0, // Sesuaikan rasio
+                                childAspectRatio: 1.0,
                                 crossAxisSpacing: 16,
                                 mainAxisSpacing: 16,
                               ),
@@ -314,7 +373,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-// --- WIDGET _MenuItem (Helper untuk Drawer) ---
+// --- WIDGET _MenuItem ---
 class _MenuItem extends StatefulWidget {
   final IconData icon;
   final String title;
@@ -351,8 +410,11 @@ class _MenuItemState extends State<_MenuItem> {
           style: GoogleFonts.poppins(color: Colors.white, fontSize: 15),
         ),
         onTap: () {
-          if (widget.filters.isEmpty) {
+          if (Scaffold.of(context).hasDrawer) {
             Navigator.pop(context);
+          }
+
+          if (widget.filters.isEmpty) {
             return;
           }
           
@@ -365,7 +427,7 @@ class _MenuItemState extends State<_MenuItem> {
             AppRoutes.browse,
             queryParameters: {
               'title': pageTitle, 
-              ...widget.filters,
+              ...widget.filters.map((k, v) => MapEntry(k, v.toString())),
             },
           );
           Navigator.pop(context);

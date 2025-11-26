@@ -23,6 +23,26 @@ class AuthService {
     }
   }
 
+  Future<User?> signUpWithEmail(String email, String password, String name) async {
+    try {
+      // 1. Buat akun di Firebase
+      final credential = await _firebaseAuth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      
+      // 2. Update Nama Pengguna (DisplayName)
+      if (credential.user != null) {
+        await credential.user!.updateDisplayName(name);
+        await credential.user!.reload(); // Refresh data user
+      }
+
+      return credential.user;
+    } on FirebaseAuthException catch (e) {
+      throw Exception(e.message);
+    }
+  }
+
   // Login Google
   Future<User?> loginWithGoogle() async {
     try {

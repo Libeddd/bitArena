@@ -40,13 +40,15 @@ class _SidebarItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // --- GANTI PADDING DENGAN INKWELL ---
     return InkWell(
-      // --- PERMINTAAN 2: Navigasi ke Detail Game ---
       onTap: () {
-        context.push('${AppRoutes.detail}/${game.id}');
+        context.pushNamed(
+          AppRoutes.detail,
+          pathParameters: {
+            'id': game.id.toString(),
+          },
+        );
       },
-      // --- PERMINTAAN 3: Warna Abu-abu saat Hover ---
       hoverColor: Colors.white.withOpacity(0.1),
       borderRadius: BorderRadius.circular(8),
       
