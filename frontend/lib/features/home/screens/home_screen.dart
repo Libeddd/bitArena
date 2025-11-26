@@ -151,6 +151,24 @@ class _HomeScreenState extends State<HomeScreen> {
 
             const Divider(color: Colors.black26),
 
+            // --- TAMBAHAN MENU ABOUT US ---
+            ListTile(
+              leading: const Icon(Icons.info_outline, color: Colors.white70),
+              title: Text(
+                'About Us',
+                style: GoogleFonts.poppins(
+                  color: Colors.white,
+                  fontSize: 15,
+                ),
+              ),
+              onTap: () {
+                Navigator.pop(context); // Tutup drawer
+                context.push(AppRoutes.aboutUs); // Pindah ke halaman About Us
+              },
+            ),
+
+            const Divider(color: Colors.black26),
+
             // 2. TOMBOL LOGOUT
             ListTile(
               leading: const Icon(Icons.logout, color: Colors.redAccent),
