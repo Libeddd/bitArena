@@ -74,13 +74,12 @@ class _SplashScreenState extends State<SplashScreen> {
               ),
             ),
 
-            // --- 2. LAYER ATAS: Watermark ---
             Align(
               alignment: Alignment.bottomCenter,
               child: Padding(
                 padding: const EdgeInsets.only(bottom: 24.0),
                 child: Text(
-                  "© 2024 bitArena v1.0.0",
+                  "© 2025 bitArena Kelompok 3",
                   style: TextStyle(
                     color: Colors.white.withOpacity(0.5),
                     fontSize: 12,
