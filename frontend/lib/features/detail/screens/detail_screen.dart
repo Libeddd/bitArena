@@ -462,11 +462,6 @@ class DetailScreen extends StatelessWidget {
       case 'nintendo':
       case 'switch':
         return FontAwesomeIcons.gamepad;
-      case 'linux':
-        return FontAwesomeIcons.linux;
-      case 'apple':
-      case 'macos':
-        return FontAwesomeIcons.apple;
       default:
         return FontAwesomeIcons.gamepad;
     }
