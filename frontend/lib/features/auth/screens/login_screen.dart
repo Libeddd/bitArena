@@ -1,5 +1,3 @@
-// File: lib/features/auth/screens/login_screen.dart
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -18,19 +16,30 @@ class LoginScreen extends StatelessWidget {
     const Color kLeftBgColor = Colors.white;       
 
     return Scaffold(
-      // --- 1. TAMBAHKAN BLOC LISTENER ---
-      // Ini yang membuat aplikasi pindah halaman saat login sukses
       body: BlocListener<AuthCubit, AuthState>(
         listener: (context, state) {
           if (state is Authenticated) {
-            // Jika login sukses, pindah ke Home
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text("Login Berhasil!"),
+                backgroundColor: Colors.green,
+                duration: Duration(seconds: 2),
+              ),
+            );
             context.go(AppRoutes.home);
           }
-          if (state is Unauthenticated) {
-            // Opsional: Tampilkan snackbar jika gagal login (tapi bukan logout)
-            // ScaffoldMessenger.of(context).showSnackBar(
-            //   SnackBar(content: Text("Login Gagal. Cek email/password.")),
-            // );
+          if (state is AuthError) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  state.message, 
+                  style: const TextStyle(color: Colors.white),
+                ),
+                backgroundColor: Colors.redAccent,
+                behavior: SnackBarBehavior.floating, 
+                duration: const Duration(seconds: 3),
+              ),
+            );
           }
         },
         child: LayoutBuilder(
@@ -110,30 +119,6 @@ class _LoginForm extends StatefulWidget {
 class _LoginFormState extends State<_LoginForm> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
-  int _strengthLevel = 0; 
-
-  void _checkPasswordStrength(String value) {
-    setState(() {
-      if (value.isEmpty) {
-        _strengthLevel = 0;
-      } else if (value.length < 6) {
-        _strengthLevel = 1;
-      } else if (value.length < 8) {
-        _strengthLevel = 2;
-      } else {
-        _strengthLevel = 3;
-      }
-    });
-  }
-
-  Color _getStrengthColor(int barIndex) {
-    if (_strengthLevel >= barIndex) {
-      if (_strengthLevel == 1) return Colors.red;
-      if (_strengthLevel == 2) return Colors.orange;
-      return Colors.green;
-    }
-    return Colors.grey[800]!;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -228,35 +213,10 @@ class _LoginFormState extends State<_LoginForm> {
           icon: Icons.lock_outline,
           controller: passwordController,
           isPassword: true,
-          onChanged: _checkPasswordStrength,
         ),
-        
-        const SizedBox(height: 16),
-        Row(
-          mainAxisAlignment: widget.isMobile ? MainAxisAlignment.center : MainAxisAlignment.start,
-          children: [
-            Text("Password strength", style: GoogleFonts.poppins(color: Colors.grey, fontSize: 12)),
-            const SizedBox(width: 10),
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 300),
-              width: 40, height: 4, color: _getStrengthColor(1),
-            ),
-            const SizedBox(width: 5),
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 300),
-              width: 40, height: 4, color: _getStrengthColor(2),
-            ),
-            const SizedBox(width: 5),
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 300),
-              width: 40, height: 4, color: _getStrengthColor(3),
-            ),
-          ],
-        ),
+           
         const SizedBox(height: 40),
 
-        // --- 2. UPDATE TOMBOL LOGIN ---
-        // Tambahkan BlocBuilder agar tombol bisa menampilkan loading spinner
         BlocBuilder<AuthCubit, AuthState>(
           builder: (context, state) {
             final bool isLoading = state is AuthLoading;

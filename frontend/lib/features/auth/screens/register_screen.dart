@@ -1,5 +1,3 @@
-// File: lib/features/auth/screens/register_screen.dart (FILE BARU)
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -7,18 +5,59 @@ import 'package:bitarena/app/app_routes.dart';
 import 'package:bitarena/features/auth/cubit/auth_cubit.dart';
 import 'package:bitarena/features/auth/cubit/auth_state.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-class RegisterScreen extends StatelessWidget {
+// UBAH JADI STATEFULWIDGET
+class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    // Controller
-    final nameController = TextEditingController();
-    final emailController = TextEditingController();
-    final passwordController = TextEditingController();
+  State<RegisterScreen> createState() => _RegisterScreenState();
+}
 
+class _RegisterScreenState extends State<RegisterScreen> {
+  // 1. Pindahkan Controller ke sini agar bisa diakses oleh State
+  final nameController = TextEditingController();
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+
+  // 2. Variabel State untuk Kekuatan Password
+  int _strengthLevel = 0; 
+
+  // 3. Logika Pengecekan Password
+  void _checkPasswordStrength(String value) {
+    setState(() {
+      if (value.isEmpty) {
+        _strengthLevel = 0;
+      } else if (value.length < 6) {
+        _strengthLevel = 1; // Lemah
+      } else if (value.length < 8) {
+        _strengthLevel = 2; // Sedang
+      } else {
+        _strengthLevel = 3; // Kuat
+      }
+    });
+  }
+
+  // 4. Helper Warna Bar
+  Color _getStrengthColor(int barIndex) {
+    if (_strengthLevel >= barIndex) {
+      if (_strengthLevel == 1) return Colors.red;
+      if (_strengthLevel == 2) return Colors.orange;
+      return Colors.green;
+    }
+    return Colors.grey[800]!;
+  }
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     // Warna Tema
     const Color kRightBgColor = Color(0xFF1E1E1E);
     const Color kLeftBgColor = Colors.white;
@@ -31,10 +70,13 @@ class RegisterScreen extends StatelessWidget {
       required IconData icon,
       required TextEditingController controller,
       bool isPassword = false,
+      // Tambahkan parameter onChanged
+      ValueChanged<String>? onChanged,
     }) {
       return TextField(
         controller: controller,
         obscureText: isPassword,
+        onChanged: onChanged, // Pasang listener di sini
         style: const TextStyle(color: Colors.white),
         decoration: InputDecoration(
           hintText: hint,
@@ -72,18 +114,18 @@ class RegisterScreen extends StatelessWidget {
             const SizedBox(height: 40),
           ],
 
-          const Text(
+          Text(
             'Create Account',
-            style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.white),
+            style: GoogleFonts.poppins(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.white),
           ),
           const SizedBox(height: 8),
-          const Text(
+          Text(
             'Please fill in the details below',
-            style: TextStyle(color: Colors.grey),
+            style: GoogleFonts.poppins(color: Colors.grey),
           ),
           const SizedBox(height: 40),
 
-          // Input Name (BARU)
+          // Input Name
           buildRoundedInput(hint: 'Full Name', icon: Icons.person_outline, controller: nameController),
           const SizedBox(height: 16),
 
@@ -92,8 +134,46 @@ class RegisterScreen extends StatelessWidget {
           const SizedBox(height: 16),
 
           // Input Password
-          buildRoundedInput(hint: 'Password', icon: Icons.lock_outline, controller: passwordController, isPassword: true),
+          buildRoundedInput(
+            hint: 'Password', 
+            icon: Icons.lock_outline, 
+            controller: passwordController, 
+            isPassword: true,
+            // 5. Hubungkan ke logika pengecekan
+            onChanged: _checkPasswordStrength,
+          ),
           
+          const SizedBox(height: 16),
+
+          // 6. UI Indikator Kekuatan Password
+          Row(
+            mainAxisAlignment: isMobile ? MainAxisAlignment.center : MainAxisAlignment.start,
+            children: [
+              Text("Password strength", style: GoogleFonts.poppins(color: Colors.grey, fontSize: 12)),
+              const SizedBox(width: 10),
+              // Bar 1
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                width: 40, height: 4, 
+                color: _getStrengthColor(1),
+              ),
+              const SizedBox(width: 5),
+              // Bar 2
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                width: 40, height: 4, 
+                color: _getStrengthColor(2),
+              ),
+              const SizedBox(width: 5),
+              // Bar 3
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                width: 40, height: 4, 
+                color: _getStrengthColor(3),
+              ),
+            ],
+          ),
+
           const SizedBox(height: 40),
 
           // Tombol Aksi
@@ -101,22 +181,31 @@ class RegisterScreen extends StatelessWidget {
             children: [
               // Tombol Sign Up (Primary)
               Expanded(
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: Colors.black,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                  ),
-                  onPressed: () {
-                    // Panggil fungsi SignUp di Cubit
-                    context.read<AuthCubit>().signUp(
-                          emailController.text,
-                          passwordController.text,
-                          nameController.text,
-                        );
+                child: BlocBuilder<AuthCubit, AuthState>(
+                  builder: (context, state) {
+                    final bool isLoading = state is AuthLoading;
+                    return ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        foregroundColor: Colors.black,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                      onPressed: isLoading ? null : () {
+                        context.read<AuthCubit>().signUp(
+                              emailController.text,
+                              passwordController.text,
+                              nameController.text,
+                            );
+                      },
+                      child: isLoading 
+                        ? const SizedBox(
+                            height: 20, width: 20, 
+                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black)
+                          )
+                        : const Text('Sign Up', style: TextStyle(fontWeight: FontWeight.bold)),
+                    );
                   },
-                  child: const Text('Sign Up', style: TextStyle(fontWeight: FontWeight.bold)),
                 ),
               ),
               const SizedBox(width: 16),
@@ -130,7 +219,7 @@ class RegisterScreen extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
                   onPressed: () {
-                    context.go(AppRoutes.login); // KEMBALI KE LOGIN
+                    context.go(AppRoutes.login);
                   },
                   child: const Text('Login'),
                 ),

@@ -5,6 +5,7 @@ import 'package:bitarena/app/app_routes.dart';
 import 'package:bitarena/features/auth/cubit/auth_cubit.dart';
 import 'package:bitarena/features/auth/cubit/auth_state.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -47,32 +48,48 @@ class _SplashScreenState extends State<SplashScreen> {
         }
       },
       child: Scaffold(
-        // Menggunakan Container untuk background hitam solid
-        body: Container(
-          decoration: const BoxDecoration(
-            color: Colors.black,
-          ),
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // 1. Logo Anda
-                Image.asset(
-                  'assets/logo.png',
-                  width: 250,
-                  height: 250,
-                  fit: BoxFit.contain,
+        body: Stack(
+          children: [
+            Container(
+              decoration: const BoxDecoration(
+                color: Colors.black,
+              ),
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image.asset(
+                      'assets/logo.png',
+                      width: 250,
+                      height: 250,
+                      fit: BoxFit.contain,
+                    ),
+                    const SizedBox(height: 30),
+                    LoadingAnimationWidget.hexagonDots(
+                      color: Colors.white,
+                      size: 50,
+                    ),
+                  ],
                 ),
-                // 2. Spasi antara logo dan loader
-                const SizedBox(height: 30),
-                // 3. Widget animasi loading
-                LoadingAnimationWidget.hexagonDots(
-                  color: Colors.white,
-                  size: 50,
-                ),
-              ],
+              ),
             ),
-          ),
+
+            // --- 2. LAYER ATAS: Watermark ---
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 24.0),
+                child: Text(
+                  "© 2024 bitArena v1.0.0",
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.5),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w300,
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

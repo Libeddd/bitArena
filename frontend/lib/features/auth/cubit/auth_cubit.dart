@@ -28,20 +28,19 @@ class AuthCubit extends Cubit<AuthState> {
       print("AuthCubit: Login Email Berhasil");
       emit(Authenticated());
     } catch (e) {
-      print("AuthCubit Error (Email): $e");
-      emit(Unauthenticated());
+      final errorMessage = e.toString().replaceAll("Exception: ", "");
+      emit(AuthError(errorMessage));
     }
   }
 
-  void signUp(String email, String password, String name) async {
+ void signUp(String email, String password, String name) async {
     emit(AuthLoading());
     try {
       await _authService.signUpWithEmail(email, password, name);
-      print("Sign Up Berhasil");
       emit(Authenticated());
     } catch (e) {
-      print("Sign Up Gagal: $e");
-      emit(Unauthenticated());
+      final errorMessage = e.toString().replaceAll("Exception: ", "");
+      emit(AuthError(errorMessage));
     }
   }
 

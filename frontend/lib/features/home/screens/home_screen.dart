@@ -134,27 +134,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 );
               },
             ),
-
-            // --- Section 1: Home, About, Contact ---
-            const _MenuItem(icon: Icons.home_outlined, title: 'Home', filters: {}), // Tanpa filter
-          ListTile(
-            leading: const Icon(Icons.info_outline, color: Colors.white),
-            title: Text('About', style: GoogleFonts.poppins(color: Colors.white)),
-            onTap: () {
-              Navigator.pop(context);
-              context.push(AppRoutes.about);
-             },
-            ),
-
-          ListTile(
-            leading: const Icon(Icons.mail_outline, color: Colors.white),
-            title: Text('Contact', style: GoogleFonts.poppins(color: Colors.white)),
-            onTap: () {
-              Navigator.pop(context);
-              context.push(AppRoutes.contact);
-            },
-          ),
-
             
             _buildSectionTitle('Platforms'),
             const _MenuItem(icon: FontAwesomeIcons.windows, title: 'PC', filters: {'platforms': '4'}),
