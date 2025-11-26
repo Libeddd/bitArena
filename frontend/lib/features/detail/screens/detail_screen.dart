@@ -76,7 +76,6 @@ class _DetailScreenState extends State<DetailScreen> {
     }
   }
 
-  // Update: Membuka Gallery dengan Widget Baru
   void _openFullScreenGallery(BuildContext context, List<String> images, int index) {
     Navigator.push(
       context,
@@ -147,36 +146,62 @@ class _DetailScreenState extends State<DetailScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 80),
-                _buildHeaderInfo(game),
-                const SizedBox(height: 10),
-                Text(game.name, style: GoogleFonts.poppins(fontSize: 48, fontWeight: FontWeight.bold, color: Colors.white, height: 1.1)),
-                const SizedBox(height: 24),
                 
                 LayoutBuilder(
                   builder: (context, constraints) {
                     bool isDesktop = constraints.maxWidth > 800;
+                    
                     if (isDesktop) {
-                      return Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(flex: 4, child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [_buildActionButtons(game), const SizedBox(height: 32), _buildRatingsSection(game), const SizedBox(height: 32), _buildAboutSection(game), const SizedBox(height: 32), _buildSpecsAndDetails(game)])),
-                          const SizedBox(width: 40),
-                          Expanded(flex: 3, child: _buildMediaGallery(game, videoToPlay)),
-                        ],
-                      );
-                    } else {
+                      // --- DESKTOP LAYOUT (Left Aligned) ---
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _buildActionButtons(game),
+                          _buildHeaderInfo(game, isCenter: false),
+                          const SizedBox(height: 10),
+                          Text(game.name, style: GoogleFonts.poppins(fontSize: 48, fontWeight: FontWeight.bold, color: Colors.white, height: 1.1)),
+                          const SizedBox(height: 24),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(flex: 4, child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [_buildActionButtons(game), const SizedBox(height: 32), _buildRatingsSection(game), const SizedBox(height: 32), _buildAboutSection(game), const SizedBox(height: 32), _buildSpecsAndDetails(game)])),
+                              const SizedBox(width: 40),
+                              Expanded(flex: 3, child: _buildMediaGallery(game, videoToPlay)),
+                            ],
+                          ),
+                        ],
+                      );
+                    } else {
+                      // --- MOBILE LAYOUT (Top Centered) ---
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.center, // HEADER CENTER
+                        children: [
+                          _buildHeaderInfo(game, isCenter: true), // Center Info
+                          const SizedBox(height: 10),
+                          Text(
+                            game.name, 
+                            textAlign: TextAlign.center, // Center Title
+                            style: GoogleFonts.poppins(fontSize: 36, fontWeight: FontWeight.bold, color: Colors.white, height: 1.1)
+                          ),
+                          const SizedBox(height: 24),
+                          _buildActionButtons(game), // Center Buttons
                           const SizedBox(height: 32),
-                          _buildMediaGallery(game, videoToPlay),
-                          const SizedBox(height: 32),
-                          _buildRatingsSection(game),
-                          const SizedBox(height: 32),
-                          _buildAboutSection(game),
-                          const SizedBox(height: 32),
-                          _buildSpecsAndDetails(game),
+                          
+                          // Mulai dari sini kembali ke Start (Left) alignment untuk konten bacaan
+                          SizedBox(
+                            width: double.infinity,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                _buildMediaGallery(game, videoToPlay),
+                                const SizedBox(height: 32),
+                                _buildRatingsSection(game),
+                                const SizedBox(height: 32),
+                                _buildAboutSection(game),
+                                const SizedBox(height: 32),
+                                _buildSpecsAndDetails(game),
+                              ],
+                            ),
+                          ),
                         ],
                       );
                     }
@@ -200,9 +225,12 @@ class _DetailScreenState extends State<DetailScreen> {
   }
 
   // --- WIDGETS ---
-  Widget _buildHeaderInfo(GameModel game) {
+  
+  // UPDATE: Tambahkan parameter isCenter
+  Widget _buildHeaderInfo(GameModel game, {required bool isCenter}) {
     return Wrap(
       crossAxisAlignment: WrapCrossAlignment.center,
+      alignment: isCenter ? WrapAlignment.center : WrapAlignment.start, // Center logic
       spacing: 12, runSpacing: 12,
       children: [
         Container(
@@ -287,57 +315,35 @@ extension StringExtension on String { String capitalize() => "${this[0].toUpperC
 class _ExpandableText extends StatefulWidget { final String text; const _ExpandableText({required this.text}); @override State<_ExpandableText> createState() => _ExpandableTextState(); }
 class _ExpandableTextState extends State<_ExpandableText> { bool _isExpanded = false; @override Widget build(BuildContext context) { return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [AnimatedSize(duration: const Duration(milliseconds: 300), child: Text(widget.text, style: const TextStyle(color: Colors.white, fontSize: 14, height: 1.5), maxLines: _isExpanded ? null : 4, overflow: _isExpanded ? TextOverflow.visible : TextOverflow.fade)), const SizedBox(height: 8), GestureDetector(onTap: () => setState(() => _isExpanded = !_isExpanded), child: Container(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4)), child: Text(_isExpanded ? "Show less" : "Show more", style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 11))))]); } }
 
-// --- NEW WIDGET: FULL SCREEN GALLERY WITH UI OVERLAY ---
+// --- FULL SCREEN GALLERY (NO CHANGE) ---
 class _FullScreenGallery extends StatefulWidget {
   final List<String> images;
   final int initialIndex;
-
   const _FullScreenGallery({required this.images, required this.initialIndex});
-
   @override
   State<_FullScreenGallery> createState() => _FullScreenGalleryState();
 }
-
 class _FullScreenGalleryState extends State<_FullScreenGallery> {
   late PageController _pageController;
   late int _currentIndex;
-
   @override
   void initState() {
     super.initState();
     _currentIndex = widget.initialIndex;
     _pageController = PageController(initialPage: widget.initialIndex);
   }
-
   @override
   void dispose() {
     _pageController.dispose();
     super.dispose();
   }
-
   void _onPageChanged(int index) {
     setState(() {
       _currentIndex = index;
     });
   }
-
-  void _goToPrevious() {
-    if (_currentIndex > 0) {
-      _pageController.previousPage(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-      );
-    }
-  }
-
-  void _goToNext() {
-    if (_currentIndex < widget.images.length - 1) {
-      _pageController.nextPage(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-      );
-    }
-  }
+  void _goToPrevious() { if (_currentIndex > 0) _pageController.previousPage(duration: const Duration(milliseconds: 300), curve: Curves.easeInOut); }
+  void _goToNext() { if (_currentIndex < widget.images.length - 1) _pageController.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.easeInOut); }
 
   @override
   Widget build(BuildContext context) {
@@ -345,7 +351,6 @@ class _FullScreenGalleryState extends State<_FullScreenGallery> {
       backgroundColor: Colors.black,
       body: Stack(
         children: [
-          // 1. MAIN IMAGE SLIDER
           PageView.builder(
             controller: _pageController,
             itemCount: widget.images.length,
@@ -365,113 +370,46 @@ class _FullScreenGalleryState extends State<_FullScreenGallery> {
               );
             },
           ),
-
-          // 2. TOP CONTROLS (ARROWS & CLOSE)
           Positioned(
-            top: 20, // Safe area margin
-            left: 0,
-            right: 0,
+            top: 20, left: 0, right: 0,
             child: SafeArea(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  // Empty space to balance Row if needed, or purely absolute positioning
                   const SizedBox(width: 48), 
-
-                  // Center Arrows
                   Container(
-                    decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.5),
-                      borderRadius: BorderRadius.circular(30),
-                    ),
+                    decoration: BoxDecoration(color: Colors.black.withOpacity(0.5), borderRadius: BorderRadius.circular(30)),
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: Icon(Icons.chevron_left, color: _currentIndex > 0 ? Colors.white : Colors.white38),
-                          onPressed: _goToPrevious,
-                        ),
-                        const SizedBox(width: 16),
-                        IconButton(
-                          icon: Icon(Icons.chevron_right, color: _currentIndex < widget.images.length - 1 ? Colors.white : Colors.white38),
-                          onPressed: _goToNext,
-                        ),
-                      ],
-                    ),
+                    child: Row(mainAxisSize: MainAxisSize.min, children: [IconButton(icon: Icon(Icons.chevron_left, color: _currentIndex > 0 ? Colors.white : Colors.white38), onPressed: _goToPrevious), const SizedBox(width: 16), IconButton(icon: Icon(Icons.chevron_right, color: _currentIndex < widget.images.length - 1 ? Colors.white : Colors.white38), onPressed: _goToNext)]),
                   ),
-
-                  // Close Button (Right)
-                  Padding(
-                    padding: const EdgeInsets.only(right: 16.0),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.5),
-                        shape: BoxShape.circle,
-                      ),
-                      child: IconButton(
-                        icon: const Icon(Icons.close, color: Colors.white),
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                    ),
-                  ),
+                  Padding(padding: const EdgeInsets.only(right: 16.0), child: Container(decoration: BoxDecoration(color: Colors.black.withOpacity(0.5), shape: BoxShape.circle), child: IconButton(icon: const Icon(Icons.close, color: Colors.white), onPressed: () => Navigator.pop(context)))),
                 ],
               ),
             ),
           ),
-
-          // 3. BOTTOM THUMBNAIL STRIP
           Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
+            bottom: 0, left: 0, right: 0,
             child: Container(
-              height: 100, // Height of the strip container
-              color: Colors.black.withOpacity(0.8),
-              padding: const EdgeInsets.symmetric(vertical: 16),
+              height: 100, color: Colors.black.withOpacity(0.8), padding: const EdgeInsets.symmetric(vertical: 16),
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
-                itemCount: widget.images.length + 1, // +1 for the '...' menu icon
+                itemCount: widget.images.length + 1,
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 itemBuilder: (context, index) {
-                  // Last item: Menu icon
                   if (index == widget.images.length) {
-                    return Container(
-                      width: 60,
-                      margin: const EdgeInsets.only(left: 8),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[900],
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.white24),
-                      ),
-                      child: const Icon(Icons.more_horiz, color: Colors.white),
-                    );
+                    return Container(width: 60, margin: const EdgeInsets.only(left: 8), decoration: BoxDecoration(color: Colors.grey[900], borderRadius: BorderRadius.circular(8), border: Border.all(color: Colors.white24)), child: const Icon(Icons.more_horiz, color: Colors.white));
                   }
-
                   final bool isSelected = index == _currentIndex;
                   return GestureDetector(
-                    onTap: () {
-                      _pageController.jumpToPage(index);
-                    },
+                    onTap: () { _pageController.jumpToPage(index); },
                     child: Container(
-                      width: 100,
-                      margin: const EdgeInsets.only(right: 8),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8),
-                        border: isSelected ? Border.all(color: Colors.white, width: 2) : null,
-                      ),
+                      width: 100, margin: const EdgeInsets.only(right: 8),
+                      decoration: BoxDecoration(borderRadius: BorderRadius.circular(8), border: isSelected ? Border.all(color: Colors.white, width: 2) : null),
                       child: ClipRRect(
-                        borderRadius: BorderRadius.circular(6), // Slightly less to fit inside border
+                        borderRadius: BorderRadius.circular(6),
                         child: ColorFiltered(
-                          colorFilter: ColorFilter.mode(
-                            isSelected ? Colors.transparent : Colors.black.withOpacity(0.5),
-                            BlendMode.darken,
-                          ),
-                          child: CachedNetworkImage(
-                            imageUrl: widget.images[index],
-                            fit: BoxFit.cover,
-                            placeholder: (context, url) => Container(color: Colors.grey[900]),
-                          ),
+                          colorFilter: ColorFilter.mode(isSelected ? Colors.transparent : Colors.black.withOpacity(0.5), BlendMode.darken),
+                          child: CachedNetworkImage(imageUrl: widget.images[index], fit: BoxFit.cover, placeholder: (context, url) => Container(color: Colors.grey[900])),
                         ),
                       ),
                     ),

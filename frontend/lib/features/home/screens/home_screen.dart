@@ -1,3 +1,5 @@
+// File: lib/features/home/screens/home_screen.dart
+
 import 'package:bitarena/features/home/widgets/game_card.dart';
 import 'package:bitarena/features/home/widgets/home_card_skeleton.dart';
 import 'package:flutter/material.dart';
@@ -24,8 +26,8 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final _scrollController = ScrollController();
   
-  // Ambil user saat ini dari Firebase
-  final User? currentUser = FirebaseAuth.instance.currentUser;
+  bool _isPlatformsExpanded = false;
+  bool _isGenresExpanded = false;
 
   @override
   void initState() {
@@ -57,38 +59,40 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  Widget _buildSectionTitle(String title) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16.0, 20.0, 16.0, 8.0),
-      child: Text(
-        title,
-        style: GoogleFonts.poppins(
-          color: Colors.white,
-          fontSize: 18,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-    );
+  String _formatDate(DateTime date) {
+    return "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
+  }
+
+  // Helper untuk mendapatkan rentang tanggal bulan (1-12)
+  String _getDateRangeForMonth(int monthIndex) {
+    final now = DateTime.now();
+    final year = now.year;
+    final start = DateTime(year, monthIndex, 1);
+    final end = DateTime(year, monthIndex + 1, 0); 
+    return "${_formatDate(start)},${_formatDate(end)}";
   }
 
   @override
   Widget build(BuildContext context) {
+    final now = DateTime.now();
+    final last30Days = now.subtract(const Duration(days: 30));
+    final nextWeekStart = now.add(const Duration(days: 7));
+    final nextWeekEnd = now.add(const Duration(days: 14));
+    final currentYear = now.year;
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'bitArena',
-          style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
-        ),
+        title: Text('bitArena', style: GoogleFonts.poppins(fontWeight: FontWeight.bold)),
         backgroundColor: const Color(0xFF1F1F1F),
         elevation: 0,
       ),
       
-      // --- DRAWER DIPERBARUI ---
       drawer: Drawer(
         backgroundColor: const Color(0xFF1F1F1F),
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
+            // USER HEADER
             StreamBuilder<User?>(
               initialData: FirebaseAuth.instance.currentUser,
               stream: FirebaseAuth.instance.userChanges(), 
@@ -97,99 +101,129 @@ class _HomeScreenState extends State<HomeScreen> {
                 if (currentUser == null) {
                    return const UserAccountsDrawerHeader(
                     decoration: BoxDecoration(color: Color(0xFF1F1F1F)),
-                    accountName: Text("Tamu", style: TextStyle(color: Colors.white)),
-                    accountEmail: Text("Silakan login", style: TextStyle(color: Colors.grey)),
-                    currentAccountPicture: CircleAvatar(
-                      backgroundColor: Colors.grey,
-                      child: Icon(Icons.login, color: Colors.white),
-                    ),
+                    accountName: Text("Guest", style: TextStyle(color: Colors.white)),
+                    accountEmail: Text("Please login", style: TextStyle(color: Colors.grey)),
+                    currentAccountPicture: CircleAvatar(backgroundColor: Colors.grey, child: Icon(Icons.login, color: Colors.white)),
                   );
                 }
-
                 final String initials = (currentUser.displayName != null && currentUser.displayName!.isNotEmpty)
-                    ? currentUser.displayName![0].toUpperCase()
-                    : 'U';
+                    ? currentUser.displayName![0].toUpperCase() : 'U';
 
                 return UserAccountsDrawerHeader(
                   decoration: const BoxDecoration(color: Color(0xFF1F1F1F)),
-                  accountName: Text(
-                    currentUser.displayName ?? 'Pengguna', // Hapus tanda tanya
-                    style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 16),
-                  ),
-                  accountEmail: Text(
-                    currentUser.email ?? 'No Email',
-                    style: GoogleFonts.poppins(color: Colors.grey[400], fontSize: 12),
-                  ),
-                 currentAccountPicture: CircleAvatar(
-                    backgroundColor: Colors.blueAccent, // Warna background avatar tetap
-                    child: Text(
-                      initials,
-                      style: GoogleFonts.poppins(
-                        fontSize: 24, 
-                        fontWeight: FontWeight.bold, 
-                        color: Colors.white
-                      ),
-                    ),
+                  accountName: Text(currentUser.displayName ?? 'User', style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 16)),
+                  accountEmail: Text(currentUser.email ?? '', style: GoogleFonts.poppins(color: Colors.grey[400], fontSize: 12)),
+                  currentAccountPicture: CircleAvatar(
+                    backgroundColor: Colors.blueAccent, 
+                    child: Text(initials, style: GoogleFonts.poppins(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white)),
                   ),
                 );
               },
             ),
-            
-            _buildSectionTitle('Platforms'),
-            const _MenuItem(icon: FontAwesomeIcons.windows, title: 'PC', filters: {'platforms': '4'}),
-            const _MenuItem(icon: FontAwesomeIcons.playstation, title: 'Playstation 4', filters: {'platforms': '18'}),
-            const _MenuItem(icon: FontAwesomeIcons.xbox, title: 'Xbox One', filters: {'platforms': '1'}),
-            
-            const Divider(color: Colors.black26),
 
-            _buildSectionTitle('Genres'),
-            const _MenuItem(icon: FontAwesomeIcons.bomb, title: 'Action', filters: {'genres': 'action'}),
-            const _MenuItem(icon: FontAwesomeIcons.crosshairs, title: 'Shooter', filters: {'genres': 'shooter'}),
-            const _MenuItem(icon: FontAwesomeIcons.mapLocationDot, title: 'Adventure', filters: {'genres': 'adventure'}),
-            const _MenuItem(icon: FontAwesomeIcons.shieldHalved, title: 'RPG', filters: {'genres': 'role-playing-games-rpg'}),
-            const _MenuItem(icon: FontAwesomeIcons.car, title: 'Simulation', filters: {'genres': 'simulation'}),
-
-            const Divider(color: Colors.black26),
-
+            const _MenuItem(icon: Icons.home_outlined, title: 'Home', filters: {}),
             ListTile(
               leading: const Icon(Icons.favorite_outline, color: Colors.grey, size: 20),
-              title: Text(
-                'My Wishlist',
-                style: GoogleFonts.poppins(color: Colors.white, fontSize: 15),
-              ),
-              onTap: () {
-                Navigator.pop(context); // Tutup Drawer
-                context.pushNamed(AppRoutes.wishlist); // Pindah ke Wishlist
-              },
+              title: Text('My Wishlist', style: GoogleFonts.poppins(color: Colors.white, fontSize: 15)),
+              onTap: () { Navigator.pop(context); context.pushNamed(AppRoutes.wishlist); },
             ),
+
+            const Divider(color: Colors.white10, thickness: 1),
+
+            // --- NEW RELEASES ---
+            _buildSectionHeader('New Releases'),
+            _MenuItem(icon: Icons.star, title: 'Last 30 days', filters: {'dates': "${_formatDate(last30Days)},${_formatDate(now)}", 'ordering': '-released'}),
+            _MenuItem(icon: Icons.local_fire_department, title: 'This week', filters: {'dates': "${_formatDate(now.subtract(const Duration(days: 7)))},${_formatDate(now.add(const Duration(days: 7)))}", 'ordering': '-added'}),
+            _MenuItem(icon: Icons.fast_forward, title: 'Next week', filters: {'dates': "${_formatDate(nextWeekStart)},${_formatDate(nextWeekEnd)}", 'ordering': '-added'}),
             
+            // --- RELEASE CALENDAR (LANGSUNG KE BULAN INI) ---
             ListTile(
-              leading: const Icon(Icons.info_outline, color: Colors.white70),
-              title: Text(
-                'About Us',
-                style: GoogleFonts.poppins(
-                  color: Colors.white,
-                  fontSize: 15,
-                ),
-              ),
+              leading: const Icon(Icons.calendar_month, color: Colors.grey, size: 20),
+              title: Text('Release calendar', style: GoogleFonts.poppins(color: Colors.white, fontSize: 15)),
               onTap: () {
-                Navigator.pop(context); // Tutup drawer
-                context.push(AppRoutes.aboutUs); // Pindah ke halaman About Us
+                Navigator.pop(context);
+                
+                // Logika: Ambil Bulan Saat Ini
+                final DateTime now = DateTime.now();
+                final int currentMonthIndex = now.month - 1; // 0 = Jan, 10 = Nov
+                
+                // Nama Bulan Lengkap untuk Title Awal
+                const List<String> fullMonths = [
+                  'January', 'February', 'March', 'April', 'May', 'June', 
+                  'July', 'August', 'September', 'October', 'November', 'December'
+                ];
+                final String currentMonthName = fullMonths[currentMonthIndex];
+
+                context.pushNamed(
+                  AppRoutes.browse,
+                  queryParameters: {
+                    'title': 'Release calendar - $currentMonthName ${now.year}',
+                    // Filter otomatis set ke tanggal 1 - akhir bulan ini
+                    'dates': _getDateRangeForMonth(now.month), 
+                    'ordering': 'released',
+                    'show_calendar': 'true',
+                    // Kirim index bulan ini agar tombol bulan terpilih otomatis
+                    'initial_index': currentMonthIndex.toString(),
+                  },
+                );
               },
             ),
 
-            const Divider(color: Colors.black26),
+            const Divider(color: Colors.white10, thickness: 1),
 
-            // 2. TOMBOL LOGOUT
+            // --- TOP ---
+            _buildSectionHeader('Top'),
+            _MenuItem(icon: FontAwesomeIcons.trophy, title: 'Best of the year', filters: {'dates': "$currentYear-01-01,$currentYear-12-31", 'ordering': '-rating'}),
+            _MenuItem(icon: Icons.bar_chart, title: 'Popular in $currentYear', filters: {'dates': "$currentYear-01-01,$currentYear-12-31", 'ordering': '-added'}),
+            _MenuItem(icon: FontAwesomeIcons.crown, title: 'All time top 250', filters: {'ordering': '-rating', 'page_size': '40'}),
+
+            const Divider(color: Colors.white10, thickness: 1),
+
+            // --- PLATFORMS ---
+            _buildExpandableSection(
+              title: 'Platforms',
+              isExpanded: _isPlatformsExpanded,
+              onToggle: () => setState(() => _isPlatformsExpanded = !_isPlatformsExpanded),
+              items: [
+                _MenuItem(icon: FontAwesomeIcons.windows, title: 'PC', filters: {'parent_platforms': '1'}),
+                _MenuItem(icon: FontAwesomeIcons.playstation, title: 'PlayStation 4', filters: {'platforms': '18'}),
+                _MenuItem(icon: FontAwesomeIcons.xbox, title: 'Xbox One', filters: {'platforms': '1'}),
+                _MenuItem(icon: FontAwesomeIcons.gamepad, title: 'Nintendo Switch', filters: {'platforms': '7'}),
+                if (_isPlatformsExpanded) ...[
+                  _MenuItem(icon: FontAwesomeIcons.apple, title: 'iOS', filters: {'platforms': '3'}),
+                  _MenuItem(icon: FontAwesomeIcons.android, title: 'Android', filters: {'platforms': '21'}),
+                  _MenuItem(icon: FontAwesomeIcons.linux, title: 'Linux', filters: {'platforms': '6'}),
+                  _MenuItem(icon: FontAwesomeIcons.laptop, title: 'macOS', filters: {'platforms': '5'}),
+                ]
+              ],
+            ),
+
+            // --- GENRES ---
+            _buildExpandableSection(
+              title: 'Genres',
+              isExpanded: _isGenresExpanded,
+              onToggle: () => setState(() => _isGenresExpanded = !_isGenresExpanded),
+              items: [
+                const _MenuItem(icon: FontAwesomeIcons.bomb, title: 'Action', filters: {'genres': 'action'}),
+                const _MenuItem(icon: FontAwesomeIcons.chessRook, title: 'Strategy', filters: {'genres': 'strategy'}),
+                const _MenuItem(icon: FontAwesomeIcons.shieldHalved, title: 'RPG', filters: {'genres': 'role-playing-games-rpg'}),
+                const _MenuItem(icon: FontAwesomeIcons.crosshairs, title: 'Shooter', filters: {'genres': 'shooter'}),
+                const _MenuItem(icon: FontAwesomeIcons.mapLocationDot, title: 'Adventure', filters: {'genres': 'adventure'}),
+                const _MenuItem(icon: FontAwesomeIcons.puzzlePiece, title: 'Puzzle', filters: {'genres': 'puzzle'}),
+                if (_isGenresExpanded) ...[
+                  const _MenuItem(icon: FontAwesomeIcons.flagCheckered, title: 'Racing', filters: {'genres': 'racing'}),
+                  const _MenuItem(icon: FontAwesomeIcons.futbol, title: 'Sports', filters: {'genres': 'sports'}),
+                  const _MenuItem(icon: FontAwesomeIcons.userGroup, title: 'Massively Multiplayer', filters: {'genres': 'massively-multiplayer'}),
+                  const _MenuItem(icon: FontAwesomeIcons.ghost, title: 'Indie', filters: {'genres': 'indie'}),
+                ]
+              ],
+            ),
+
+            const Divider(color: Colors.white10, thickness: 1),
+
             ListTile(
               leading: const Icon(Icons.logout, color: Colors.redAccent),
-              title: Text(
-                'Logout',
-                style: GoogleFonts.poppins(
-                  color: Colors.redAccent,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              title: Text('Logout', style: GoogleFonts.poppins(color: Colors.redAccent, fontWeight: FontWeight.bold)),
               onTap: () {
                 Navigator.pop(context);
                 context.read<AuthCubit>().logout();
@@ -204,17 +238,13 @@ class _HomeScreenState extends State<HomeScreen> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // --- SEARCH BAR ---
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: TextField(
               decoration: InputDecoration(
                 hintText: 'Search store',
                 prefixIcon: Icon(Icons.search, color: Colors.grey[400]),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(30.0),
-                  borderSide: BorderSide.none,
-                ),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(30.0), borderSide: BorderSide.none),
                 filled: true,
                 fillColor: const Color(0xFF2A2A2A),
                 contentPadding: const EdgeInsets.symmetric(vertical: 14.0),
@@ -229,157 +259,92 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
 
-          // --- KONTEN SCROLLABLE ---
           Expanded(
             child: SingleChildScrollView(
               controller: _scrollController,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // --- 1. BANNER SECTION ---
                   BlocBuilder<HomeBloc, HomeState>(
                     builder: (context, state) {
                       if (state is HomeLoading || state is HomeInitial) {
-                        return Shimmer.fromColors(
-                          baseColor: Colors.grey[850]!,
-                          highlightColor: Colors.grey[700]!,
-                          child: Container(
-                            height: 400,
-                            width: double.infinity, 
-                            color: Colors.grey[850],
-                          ),
-                        );
+                        return Shimmer.fromColors(baseColor: Colors.grey[850]!, highlightColor: Colors.grey[700]!, child: Container(height: 400, width: double.infinity, color: Colors.grey[850]));
                       }
                       if (state is HomeSuccess) {
                         final bannerGames = state.games.take(5).toList();
+                        return SizedBox(height: 400, width: double.infinity, child: HomeBannerCarousel(games: bannerGames));
+                      }
+                      return const SizedBox.shrink();
+                    },
+                  ),
+
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Text('Featured Games', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
+                  ),
+                  BlocBuilder<HomeBloc, HomeState>(
+                    builder: (context, state) {
+                      if (state is HomeLoading || state is HomeInitial) {
                         return SizedBox(
-                          height: 400,
-                          width: double.infinity,
-                          child: HomeBannerCarousel(games: bannerGames),
+                          height: 300,
+                          child: ListView.separated(
+                            scrollDirection: Axis.horizontal,
+                            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                            itemCount: 7,
+                            separatorBuilder: (context, index) => const SizedBox(width: 16),
+                            itemBuilder: (context, index) => const SizedBox(width: 200, child: GameCardSkeleton()),
+                          ),
+                        );
+                      }
+                      if (state is HomeSuccess) {
+                        final featuredGames = state.games.skip(5).take(7).toList();
+                        return SizedBox(
+                          height: 300,
+                          child: ListView.separated(
+                            scrollDirection: Axis.horizontal,
+                            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                            itemCount: featuredGames.length,
+                            separatorBuilder: (context, index) => const SizedBox(width: 16),
+                            itemBuilder: (context, index) => SizedBox(width: 200, child: GameCard(game: featuredGames[index])),
+                          ),
                         );
                       }
                       return const SizedBox.shrink();
                     },
                   ),
 
-                  // --- 2. FEATURED GAMES ---
                   Padding(
                     padding: const EdgeInsets.all(16.0),
-                    child: Text(
-                      'Featured Games', 
-                      style: Theme.of(context).textTheme.headlineSmall
-                          ?.copyWith(fontWeight: FontWeight.bold),
-                    ),
+                    child: Text('All Games', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
                   ),
-
                   BlocBuilder<HomeBloc, HomeState>(
                     builder: (context, state) {
                       if (state is HomeLoading || state is HomeInitial) {
                         return Shimmer.fromColors(
-                          baseColor: Colors.grey[850]!,
-                          highlightColor: Colors.grey[700]!,
+                          baseColor: Colors.grey[850]!, highlightColor: Colors.grey[700]!,
                           child: GridView.builder(
-                            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                            physics: const NeverScrollableScrollPhysics(),
-                            shrinkWrap: true,
-                            gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                              maxCrossAxisExtent: 200, 
-                              childAspectRatio: 0.6,   
-                              crossAxisSpacing: 16,
-                              mainAxisSpacing: 16,
-                            ),
-                            itemCount: 4, 
-                            itemBuilder: (context, index) => const GameCardSkeleton(),
+                            padding: const EdgeInsets.symmetric(horizontal: 16.0), physics: const NeverScrollableScrollPhysics(), shrinkWrap: true,
+                            gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(maxCrossAxisExtent: 400, childAspectRatio: 1.0, crossAxisSpacing: 16, mainAxisSpacing: 16),
+                            itemCount: 6, itemBuilder: (context, index) => const HomeCardSkeleton(),
                           ),
                         );
                       }
+                      if (state is HomeError) return Center(child: Text('Failed to load games: ${state.message}'));
                       if (state is HomeSuccess) {
-                        final featuredGames = state.games.skip(5).take(5).toList();
-                        return GridView.builder(
-                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                          physics: const NeverScrollableScrollPhysics(),
-                          shrinkWrap: true,
-                          gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                            maxCrossAxisExtent: 200, 
-                            childAspectRatio: 0.6,   
-                            crossAxisSpacing: 16,
-                            mainAxisSpacing: 16,
-                          ),
-                          itemCount: featuredGames.length,
-                          itemBuilder: (context, index) {
-                            final game = featuredGames[index];
-                            return GameCard(game: game); 
-                          },
-                        );
-                      }
-                      return const SizedBox.shrink();
-                    },
-                  ),
-
-                  // --- 3. TRENDING GAMES ---
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Text(
-                      'All Games',
-                      style: Theme.of(context).textTheme.headlineSmall
-                          ?.copyWith(fontWeight: FontWeight.bold),
-                    ),
-                  ),
-
-                  BlocBuilder<HomeBloc, HomeState>(
-                    builder: (context, state) {
-                      if (state is HomeLoading || state is HomeInitial) {
-                        return Shimmer.fromColors(
-                          baseColor: Colors.grey[850]!,
-                          highlightColor: Colors.grey[700]!,
-                          child: GridView.builder(
-                            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                            physics: const NeverScrollableScrollPhysics(),
-                            shrinkWrap: true,
-                            gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                              maxCrossAxisExtent: 400,
-                              childAspectRatio: 1.0,
-                              crossAxisSpacing: 16,
-                              mainAxisSpacing: 16,
-                            ),
-                            itemCount: 6,
-                            itemBuilder: (context, index) => const HomeCardSkeleton(),
-                          ),
-                        );
-                      }
-                      if (state is HomeError) {
-                        return Center(child: Text('Gagal memuat data: ${state.message}'));
-                      }
-                      if (state is HomeSuccess) {
-                        if (state.games.isEmpty) {
-                          return const Center(child: Text('Game tidak ditemukan.'));
-                        }
-
-                        final gridGames = state.games.skip(10).toList();
-
+                        if (state.games.isEmpty) return const Center(child: Text('No games found.'));
+                        
+                        // Skip 5 (Banner) + 7 (Featured) = 12
+                        final gridGames = state.games.skip(12).toList(); 
+                        
                         return Column(
                           children: [
                             GridView.builder(
-                              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                              physics: const NeverScrollableScrollPhysics(),
-                              shrinkWrap: true,
-                              gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                                maxCrossAxisExtent: 400,
-                                childAspectRatio: 1.0,
-                                crossAxisSpacing: 16,
-                                mainAxisSpacing: 16,
-                              ),
-                              itemCount: gridGames.length,
-                              itemBuilder: (context, index) {
-                                final game = gridGames[index];
-                                return HomeCard(game: game);
-                              },
+                              padding: const EdgeInsets.symmetric(horizontal: 16.0), physics: const NeverScrollableScrollPhysics(), shrinkWrap: true,
+                              gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(maxCrossAxisExtent: 400, childAspectRatio: 1.0, crossAxisSpacing: 16, mainAxisSpacing: 16),
+                              itemCount: gridGames.length, itemBuilder: (context, index) => HomeCard(game: gridGames[index]),
                             ),
                             if (state.isLoadingMore && !state.hasReachedMax)
-                              const Padding(
-                                padding: EdgeInsets.symmetric(vertical: 20.0),
-                                child: Center(child: CircularProgressIndicator()),
-                              ),
+                              const Padding(padding: EdgeInsets.symmetric(vertical: 20.0), child: Center(child: CircularProgressIndicator())),
                           ],
                         );
                       }
@@ -395,19 +360,44 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+
+  Widget _buildSectionHeader(String title) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
+      child: Text(title, style: GoogleFonts.poppins(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+    );
+  }
+
+  Widget _buildExpandableSection({required String title, required bool isExpanded, required VoidCallback onToggle, required List<Widget> items}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSectionHeader(title),
+        ...items,
+        InkWell(
+          onTap: onToggle,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+            child: Row(
+              children: [
+                Container(padding: const EdgeInsets.all(4), decoration: BoxDecoration(color: Colors.grey[800], borderRadius: BorderRadius.circular(4)), child: Icon(isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down, size: 16, color: Colors.white)),
+                const SizedBox(width: 12),
+                Text(isExpanded ? "Hide" : "Show all", style: const TextStyle(color: Colors.grey)),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 }
 
-// --- WIDGET _MenuItem ---
 class _MenuItem extends StatefulWidget {
   final IconData icon;
   final String title;
   final Map<String, dynamic> filters;
 
-  const _MenuItem({
-    required this.icon,
-    required this.title,
-    required this.filters,
-  });
+  const _MenuItem({required this.icon, required this.title, required this.filters});
 
   @override
   State<_MenuItem> createState() => _MenuItemState();
@@ -422,35 +412,26 @@ class _MenuItemState extends State<_MenuItem> {
       onEnter: (_) => setState(() => _isHovered = true),
       onExit: (_) => setState(() => _isHovered = false),
       cursor: SystemMouseCursors.click,
-      
       child: ListTile(
-        leading: FaIcon(
-          widget.icon,
-          color: _isHovered ? Colors.white : Colors.grey[400],
-          size: 20,
-        ),
-        title: Text(
-          widget.title,
-          style: GoogleFonts.poppins(color: Colors.white, fontSize: 15),
-        ),
+        leading: FaIcon(widget.icon, color: _isHovered ? Colors.white : Colors.grey[400], size: 20),
+        title: Text(widget.title, style: GoogleFonts.poppins(color: Colors.white, fontSize: 15)),
         onTap: () {
-          if (Scaffold.of(context).hasDrawer) {
-            Navigator.pop(context);
-          }
-
           if (widget.filters.isEmpty) {
+            Navigator.pop(context);
             return;
           }
           
-          String pageTitle = widget.title;
-          if (widget.filters.containsKey('platforms') || widget.filters.containsKey('genres')) {
-            pageTitle = '${widget.title} Games';
+          String finalTitle = widget.title;
+          if (widget.filters.keys.any((k) => k.contains('genres') || k.contains('platforms'))) {
+             if (!finalTitle.toLowerCase().contains('games')) {
+               finalTitle = "$finalTitle Games";
+             }
           }
 
           context.pushNamed(
             AppRoutes.browse,
             queryParameters: {
-              'title': pageTitle, 
+              'title': finalTitle, 
               ...widget.filters.map((k, v) => MapEntry(k, v.toString())),
             },
           );
