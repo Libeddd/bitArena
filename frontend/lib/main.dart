@@ -7,6 +7,7 @@ import 'package:bitarena/data/repositories/game_repository.dart';
 import 'package:bitarena/data/services/game_api_service.dart';
 import 'package:bitarena/features/auth/cubit/auth_cubit.dart';
 import 'package:bitarena/features/detail/cubit/detail_cubit.dart';
+import 'package:bitarena/features/wishlist/cubit/wishlist_cubit.dart';
 import 'package:bitarena/features/home/bloc/home_bloc.dart';
 import 'package:bitarena/features/search/bloc/search_bloc.dart';
 import 'package:bitarena/features/browse/bloc/browse_bloc.dart';
@@ -70,6 +71,10 @@ class MyApp extends StatelessWidget {
             create: (context) => BrowseBloc(
               context.read<GameRepository>(),
             ),
+          ),
+
+        BlocProvider<WishlistCubit>(
+            create: (context) => WishlistCubit(),
           ),
         ],
         child: MaterialApp.router(

@@ -1,10 +1,4 @@
-// File: lib/app/app_routes.dart
-
-// --- TAMBAHKAN IMPORT INI AGAR SCAFFOLD DIKENALI ---
-
 import 'package:flutter/material.dart'; 
-// ----------------------------------------------------
-
 import 'package:go_router/go_router.dart';
 import 'package:bitarena/features/splash/splash_screen.dart';
 import 'package:bitarena/features/auth/screens/login_screen.dart';
@@ -14,6 +8,7 @@ import 'package:bitarena/features/detail/screens/detail_screen.dart';
 import 'package:bitarena/features/search/screens/search_screen.dart';
 import 'package:bitarena/features/browse/screens/browse_screen.dart';
 import 'package:bitarena/features/detail/screens/about_us_screen.dart';
+import 'package:bitarena/features/wishlist/screens/wishlist_screen.dart';
 
 class AppRoutes {
   static const String splash = '/';
@@ -24,6 +19,7 @@ class AppRoutes {
   static const String search = '/search';
   static const String browse = '/browse';
   static const String aboutUs = '/about-us';
+  static const String wishlist = '/wishlist';
 
 
   static final GoRouter router = GoRouter(
@@ -49,20 +45,23 @@ class AppRoutes {
         builder: (context, state) => const RegisterScreen(),
       ),
 
-// Route About Us
       GoRoute(
         path: aboutUs,
-        name: 'aboutUs', // Tambahkan name untuk memudahkan pemanggilan (opsional)
+        name: 'aboutUs', 
         builder: (context, state) => const AboutUsScreen(),
       ),
+
+      GoRoute(
+        path: wishlist,
+        name: wishlist,
+        builder: (context, state) => const WishlistScreen(),
+      ),
       
-      // --- JANGAN LUPA: Tambahkan Route Home di sini ---
       GoRoute(
         path: home,
         name: home,
         builder: (context, state) => const HomeScreen(),
       ),
-      // ------------------------------------------------
       
       GoRoute(
         path: '$detail/:id', 

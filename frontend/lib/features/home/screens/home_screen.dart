@@ -151,7 +151,18 @@ class _HomeScreenState extends State<HomeScreen> {
 
             const Divider(color: Colors.black26),
 
-            // --- TAMBAHAN MENU ABOUT US ---
+            ListTile(
+              leading: const Icon(Icons.favorite_outline, color: Colors.grey, size: 20),
+              title: Text(
+                'My Wishlist',
+                style: GoogleFonts.poppins(color: Colors.white, fontSize: 15),
+              ),
+              onTap: () {
+                Navigator.pop(context); // Tutup Drawer
+                context.pushNamed(AppRoutes.wishlist); // Pindah ke Wishlist
+              },
+            ),
+            
             ListTile(
               leading: const Icon(Icons.info_outline, color: Colors.white70),
               title: Text(
