@@ -170,7 +170,7 @@ class _DetailScreenState extends State<DetailScreen> {
                             children: [
                               Expanded(flex: 4, child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [_buildActionButtons(game), const SizedBox(height: 32), _buildRatingsSection(game), const SizedBox(height: 32), _buildAboutSection(game), const SizedBox(height: 32), _buildSpecsAndDetails(game)])),
                               const SizedBox(width: 40),
-                              Expanded(flex: 3, child: _buildMediaGallery(game, videoToPlay)),
+                              Expanded(flex: 3, child: _buildMediaGallery(game,)),
                             ],
                           ),
                         ],
@@ -197,7 +197,7 @@ class _DetailScreenState extends State<DetailScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                _buildMediaGallery(game, videoToPlay),
+                                _buildMediaGallery(game,),
                                 const SizedBox(height: 32),
                                 _buildRatingsSection(game),
                                 const SizedBox(height: 32),
@@ -292,16 +292,59 @@ class _DetailScreenState extends State<DetailScreen> {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Row(children: [Text(_getRatingTitle(game.rating), style: GoogleFonts.poppins(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white)), const SizedBox(width: 8), Icon(_getRatingIcon(game.rating), color: Colors.amber, size: 24), const SizedBox(width: 16), Text("${game.rating} Rating", style: const TextStyle(color: Colors.white54, fontSize: 14, decoration: TextDecoration.underline, decorationColor: Colors.white54))]), const SizedBox(height: 16), ClipRRect(borderRadius: BorderRadius.circular(4), child: SizedBox(height: 50, child: Row(children: ratings.map((r) => Expanded(flex: (r['percent'] as double).toInt() == 0 ? 1 : (r['percent'] as double).toInt(), child: Container(color: _getRatingColor(r['id'])))).toList()))), const SizedBox(height: 12), Wrap(spacing: 16, runSpacing: 8, children: ratings.map((r) => Row(mainAxisSize: MainAxisSize.min, children: [Icon(Icons.circle, color: _getRatingColor(r['id']), size: 10), const SizedBox(width: 6), Text(r['title'].toString().capitalize(), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)), const SizedBox(width: 4), Text("${r['count'] ?? ''}", style: const TextStyle(color: Colors.white54))])).toList())]);
   }
 
-  Widget _buildMediaGallery(GameModel game, String? videoUrl) {
-    final List<String> images = game.screenshots.isNotEmpty ? game.screenshots : [game.backgroundImage];
-    final String videoThumb = images.first;
+  Widget _buildMediaGallery(GameModel game) {
+    final List<String> images = game.screenshots.isNotEmpty
+        ? game.screenshots
+        : [game.backgroundImage];
+    final String mainImage = images.first;
     final List<String> gridImages = images.length > 1 ? images.sublist(1) : [];
 
-    return Column(children: [
-      InkWell(onTap: () => _playVideo(context, videoUrl, game.name), child: Container(height: 200, width: double.infinity, decoration: BoxDecoration(borderRadius: BorderRadius.circular(8), image: DecorationImage(image: CachedNetworkImageProvider(videoThumb), fit: BoxFit.cover)), child: Stack(children: [Container(color: Colors.black26), Center(child: Container(padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: Colors.redAccent.withOpacity(0.9), shape: BoxShape.circle), child: const Icon(Icons.play_arrow, color: Colors.white, size: 32))), if (videoUrl == null) Positioned(bottom: 8, left: 8, child: Container(padding: const EdgeInsets.all(4), color: Colors.black54, child: const Text("No Official Trailer", style: TextStyle(color: Colors.white, fontSize: 10))))]))),
-      const SizedBox(height: 12),
-      if (gridImages.isNotEmpty) GridView.builder(shrinkWrap: true, physics: const NeverScrollableScrollPhysics(), gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, crossAxisSpacing: 10, mainAxisSpacing: 10, childAspectRatio: 16/9), itemCount: gridImages.length > 4 ? 4 : gridImages.length, itemBuilder: (context, index) => InkWell(onTap: () => _openFullScreenGallery(context, images, index + 1), child: ClipRRect(borderRadius: BorderRadius.circular(8), child: CachedNetworkImage(imageUrl: gridImages[index], fit: BoxFit.cover, placeholder: (c, u) => Container(color: Colors.grey[900])))))
-    ]);
+    return Column(
+      children: [
+        // Gambar Utama (sebelumnya adalah thumbnail video)
+        InkWell(
+          onTap: () => _openFullScreenGallery(context, images, 0),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: Container(
+              height: 200,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: CachedNetworkImageProvider(mainImage),
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        // Grid Gambar
+        if (gridImages.isNotEmpty)
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: 10,
+              mainAxisSpacing: 10,
+              childAspectRatio: 16 / 9,
+            ),
+            itemCount: gridImages.length > 4 ? 4 : gridImages.length,
+            itemBuilder: (context, index) => InkWell(
+              onTap: () => _openFullScreenGallery(context, images, index + 1),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: CachedNetworkImage(
+                  imageUrl: gridImages[index],
+                  fit: BoxFit.cover,
+                  placeholder: (c, u) => Container(color: Colors.grey[900]),
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
   }
 
   Widget _buildAboutSection(GameModel game) => Column(
