@@ -86,6 +86,8 @@ class _HomeScreenState extends State<HomeScreen> {
     final double cardWidth = isDesktop ? 280 : 200;
     final double cardHeight = isDesktop ? 380 : 290;
 
+    const double kMaxWidth = 1350.0;
+
     return Scaffold(
       appBar: AppBar(
         title: Text('bitArena', style: GoogleFonts.poppins(fontWeight: FontWeight.bold)),
@@ -241,124 +243,134 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           Padding(
             padding: const EdgeInsets.all(16.0),
-            child: TextField(
-              decoration: InputDecoration(
-                hintText: 'Search store',
-                prefixIcon: Icon(Icons.search, color: Colors.grey[400]),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(30.0), borderSide: BorderSide.none),
-                filled: true,
-                fillColor: const Color(0xFF2A2A2A),
-                contentPadding: const EdgeInsets.symmetric(vertical: 14.0),
+            child: Center( // Center widget untuk menengahkan search bar
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: kMaxWidth), // Batas lebar
+                child: TextField(
+                  decoration: InputDecoration(
+                    hintText: 'Search store',
+                    prefixIcon: Icon(Icons.search, color: Colors.grey[400]),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(30.0), borderSide: BorderSide.none),
+                    filled: true,
+                    fillColor: const Color(0xFF2A2A2A),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 14.0),
+                  ),
+                  onSubmitted: (query) {
+                    if (query.isNotEmpty) {
+                      context.push('${AppRoutes.search}/$query');
+                    } else {
+                      context.read<HomeBloc>().add(HomeFetchList());
+                    }
+                  },
+                ),
               ),
-              onSubmitted: (query) {
-                if (query.isNotEmpty) {
-                  context.push('${AppRoutes.search}/$query');
-                } else {
-                  context.read<HomeBloc>().add(HomeFetchList());
-                }
-              },
             ),
           ),
 
           Expanded(
-            child: SingleChildScrollView(
-              controller: _scrollController,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // BANNER
-                  BlocBuilder<HomeBloc, HomeState>(
-                    builder: (context, state) {
-                      if (state is HomeLoading || state is HomeInitial) {
-                        return Shimmer.fromColors(baseColor: Colors.grey[850]!, highlightColor: Colors.grey[700]!, child: Container(height: 400, width: double.infinity, color: Colors.grey[850]));
-                      }
-                      if (state is HomeSuccess) {
-                        final bannerGames = state.games.take(5).toList();
-                        return SizedBox(height: 400, width: double.infinity, child: HomeBannerCarousel(games: bannerGames));
-                      }
-                      return const SizedBox.shrink();
-                    },
-                  ),
+            child: Center( // Center widget untuk menengahkan konten utama
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: kMaxWidth), // Batas lebar
+                child: SingleChildScrollView(
+                  controller: _scrollController,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // BANNER
+                      BlocBuilder<HomeBloc, HomeState>(
+                        builder: (context, state) {
+                          if (state is HomeLoading || state is HomeInitial) {
+                            return Shimmer.fromColors(baseColor: Colors.grey[850]!, highlightColor: Colors.grey[700]!, child: Container(height: 400, width: double.infinity, color: Colors.grey[850]));
+                          }
+                          if (state is HomeSuccess) {
+                            final bannerGames = state.games.take(5).toList();
+                            return SizedBox(height: 400, width: double.infinity, child: HomeBannerCarousel(games: bannerGames));
+                          }
+                          return const SizedBox.shrink();
+                        },
+                      ),
 
-                  // FEATURED GAMES (HORIZONTAL)
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Text('Featured Games', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
-                  ),
-                  BlocBuilder<HomeBloc, HomeState>(
-                    builder: (context, state) {
-                      if (state is HomeLoading || state is HomeInitial) {
-                        return SizedBox(
-                          height: cardHeight,
-                          child: ListView.separated(
-                            scrollDirection: Axis.horizontal,
-                            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                            itemCount: 7,
-                            separatorBuilder: (context, index) => const SizedBox(width: 16),
-                            itemBuilder: (context, index) => SizedBox(width: cardWidth, child: const GameCardSkeleton()),
-                          ),
-                        );
-                      }
-                      if (state is HomeSuccess) {
-                        final featuredGames = state.games.skip(5).take(7).toList();
-                        return SizedBox(
-                          height: cardHeight,
-                          child: ScrollConfiguration(
-                            behavior: ScrollConfiguration.of(context).copyWith(
-                              dragDevices: {PointerDeviceKind.touch, PointerDeviceKind.mouse},
-                            ),
-                            child: ListView.separated(
-                              scrollDirection: Axis.horizontal,
-                              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                              itemCount: featuredGames.length,
-                              separatorBuilder: (context, index) => const SizedBox(width: 16),
-                              itemBuilder: (context, index) => SizedBox(width: cardWidth, child: GameCard(game: featuredGames[index])),
-                            ),
-                          ),
-                        );
-                      }
-                      return const SizedBox.shrink();
-                    },
-                  ),
+                      // FEATURED GAMES (HORIZONTAL)
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Text('Featured Games', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
+                      ),
+                      BlocBuilder<HomeBloc, HomeState>(
+                        builder: (context, state) {
+                          if (state is HomeLoading || state is HomeInitial) {
+                            return SizedBox(
+                              height: cardHeight,
+                              child: ListView.separated(
+                                scrollDirection: Axis.horizontal,
+                                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                                itemCount: 7,
+                                separatorBuilder: (context, index) => const SizedBox(width: 16),
+                                itemBuilder: (context, index) => SizedBox(width: cardWidth, child: const GameCardSkeleton()),
+                              ),
+                            );
+                          }
+                          if (state is HomeSuccess) {
+                            final featuredGames = state.games.skip(5).take(7).toList();
+                            return SizedBox(
+                              height: cardHeight,
+                              child: ScrollConfiguration(
+                                behavior: ScrollConfiguration.of(context).copyWith(
+                                  dragDevices: {PointerDeviceKind.touch, PointerDeviceKind.mouse},
+                                ),
+                                child: ListView.separated(
+                                  scrollDirection: Axis.horizontal,
+                                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                                  itemCount: featuredGames.length,
+                                  separatorBuilder: (context, index) => const SizedBox(width: 16),
+                                  itemBuilder: (context, index) => SizedBox(width: cardWidth, child: GameCard(game: featuredGames[index])),
+                                ),
+                              ),
+                            );
+                          }
+                          return const SizedBox.shrink();
+                        },
+                      ),
 
-                  // ALL GAMES (GRID)
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Text('All Games', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
+                      // ALL GAMES (GRID)
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Text('All Games', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
+                      ),
+                      BlocBuilder<HomeBloc, HomeState>(
+                        builder: (context, state) {
+                          if (state is HomeLoading || state is HomeInitial) {
+                            return Shimmer.fromColors(
+                              baseColor: Colors.grey[850]!, highlightColor: Colors.grey[700]!,
+                              child: GridView.builder(
+                                padding: const EdgeInsets.symmetric(horizontal: 16.0), physics: const NeverScrollableScrollPhysics(), shrinkWrap: true,
+                                gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(maxCrossAxisExtent: 400, childAspectRatio: 0.9, crossAxisSpacing: 16, mainAxisSpacing: 16),
+                                itemCount: 6, itemBuilder: (context, index) => const HomeCardSkeleton(),
+                              ),
+                            );
+                          }
+                          if (state is HomeError) return Center(child: Text('Failed to load games: ${state.message}'));
+                          if (state is HomeSuccess) {
+                            if (state.games.isEmpty) return const Center(child: Text('No games found.'));
+                            final gridGames = state.games.skip(12).toList();
+                            return Column(
+                              children: [
+                                GridView.builder(
+                                  padding: const EdgeInsets.symmetric(horizontal: 16.0), physics: const NeverScrollableScrollPhysics(), shrinkWrap: true,
+                                  gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(maxCrossAxisExtent: 400, childAspectRatio: 0.9, crossAxisSpacing: 16, mainAxisSpacing: 16),
+                                  itemCount: gridGames.length, itemBuilder: (context, index) => HomeCard(game: gridGames[index]),
+                                ),
+                                if (state.isLoadingMore && !state.hasReachedMax)
+                                  const Padding(padding: EdgeInsets.symmetric(vertical: 20.0), child: Center(child: CircularProgressIndicator())),
+                              ],
+                            );
+                          }
+                          return const SizedBox.shrink();
+                        },
+                      ),
+                      const SizedBox(height: 20),
+                    ],
                   ),
-                  BlocBuilder<HomeBloc, HomeState>(
-                    builder: (context, state) {
-                      if (state is HomeLoading || state is HomeInitial) {
-                        return Shimmer.fromColors(
-                          baseColor: Colors.grey[850]!, highlightColor: Colors.grey[700]!,
-                          child: GridView.builder(
-                            padding: const EdgeInsets.symmetric(horizontal: 16.0), physics: const NeverScrollableScrollPhysics(), shrinkWrap: true,
-                            gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(maxCrossAxisExtent: 400, childAspectRatio: 0.9, crossAxisSpacing: 16, mainAxisSpacing: 16),
-                            itemCount: 6, itemBuilder: (context, index) => const HomeCardSkeleton(),
-                          ),
-                        );
-                      }
-                      if (state is HomeError) return Center(child: Text('Failed to load games: ${state.message}'));
-                      if (state is HomeSuccess) {
-                        if (state.games.isEmpty) return const Center(child: Text('No games found.'));
-                        final gridGames = state.games.skip(12).toList();
-                        return Column(
-                          children: [
-                            GridView.builder(
-                              padding: const EdgeInsets.symmetric(horizontal: 16.0), physics: const NeverScrollableScrollPhysics(), shrinkWrap: true,
-                              gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(maxCrossAxisExtent: 400, childAspectRatio: 0.9, crossAxisSpacing: 16, mainAxisSpacing: 16),
-                              itemCount: gridGames.length, itemBuilder: (context, index) => HomeCard(game: gridGames[index]),
-                            ),
-                            if (state.isLoadingMore && !state.hasReachedMax)
-                              const Padding(padding: EdgeInsets.symmetric(vertical: 20.0), child: Center(child: CircularProgressIndicator())),
-                          ],
-                        );
-                      }
-                      return const SizedBox.shrink();
-                    },
-                  ),
-                  const SizedBox(height: 20),
-                ],
+                ),
               ),
             ),
           ),

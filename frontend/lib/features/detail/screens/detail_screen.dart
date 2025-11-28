@@ -107,6 +107,8 @@ class _DetailScreenState extends State<DetailScreen> {
   Widget _buildSuccessContent(BuildContext context, GameModel game) {
     final String? videoToPlay = game.trailerUrl ?? game.clip;
 
+    const double kMaxWidth = 1250.0;
+
     return Stack(
       children: [
         // 1. BACKGROUND IMAGE
@@ -142,10 +144,13 @@ class _DetailScreenState extends State<DetailScreen> {
         Positioned.fill(
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 20.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 80),
+            child: Center( // Center widget untuk menengahkan konten utama
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: kMaxWidth), // Batas lebar
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 80),
                 
                 LayoutBuilder(
                   builder: (context, constraints) {
@@ -212,6 +217,8 @@ class _DetailScreenState extends State<DetailScreen> {
                 const SizedBox(height: 50),
               ],
             ),
+          ),
+        ),
           ),
         ),
 
