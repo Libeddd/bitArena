@@ -1,10 +1,8 @@
 import 'dart:async';
 import 'dart:math';
-
 import 'package:universal_io/io.dart';
 import 'package:universal_html/html.dart' as html;
 import 'package:flutter/foundation.dart' show kIsWeb;
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -50,37 +48,61 @@ class _DetailScreenState extends State<DetailScreen> {
     );
   }
 
-  Future<bool> _executeDownloadLogic(String gameName) async {
-    try {
-      if (kIsWeb) {
-        return await _createDummyGameFileWeb(gameName);
-      } else {
-        return await _checkPermissionAndDownloadNative(gameName);
-      }
-    } catch (e) {
-      debugPrint("Download Exception: $e");
-      return false;
-    }
-  }
+// detail_screen.dart
 
-  Future<bool> _checkPermissionAndDownloadNative(String gameName) async {
-    if (Platform.isAndroid || Platform.isIOS) {
-      var status = await Permission.storage.status;
-
-      if (!status.isGranted) {
-        status = await Permission.storage.request();
-      }
-
-      if (status.isGranted ||
-          await Permission.manageExternalStorage.isGranted) {
-        return await _createDummyGameFileNative(gameName);
-      } else {
-        return false;
-      }
-    } else {
+Future<bool> _executeDownloadLogic(String gameName) async {
+  try {
+    if (kIsWeb) {
+      // Platform Web
+      return await _createDummyGameFileWeb(gameName);
+    } else if (Platform.isAndroid || Platform.isIOS) {
+      // Platform Mobile (membutuhkan pemeriksaan izin)
+      return await _checkPermissionAndDownloadNative(gameName);
+    } else if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
+      // Platform Desktop (tidak memerlukan pemeriksaan izin eksternal)
       return await _createDummyGameFileNative(gameName);
     }
+    return false;
+  } catch (e) {
+    debugPrint("Download Exception: $e");
+    return false;
   }
+}
+// detail_screen.dart
+
+Future<bool> _checkPermissionAndDownloadNative(String gameName) async {
+  if (Platform.isAndroid) {
+    // 🔥 PERBAIKAN: Kita menggunakan Permission.storage.request().
+    // Di Android API 33+ (terbaru), permintaan ini akan memunculkan izin media (Foto/Video)
+    // atau izin "Files and Media" (Penyimpanan), tergantung target SDK.
+    // Kita anggap jika status granted, OS telah memberikan izin yang cukup.
+    var status = await Permission.storage.request(); 
+    
+    // Periksa status
+    if (status.isGranted) {
+        debugPrint("Permission STORAGE/Media granted. Proceeding with download.");
+        return await _createDummyGameFileNative(gameName);
+    }
+    
+    // Jika ditolak atau ditolak permanen
+    if (status.isPermanentlyDenied) {
+        // Arahkan pengguna ke pengaturan untuk memberikan izin secara manual.
+        openAppSettings();
+    }
+    
+    return false; 
+    
+  } else if (Platform.isIOS) {
+    // Untuk iOS, izin PhotoLibrary diperlukan untuk menyimpan media atau file
+    var status = await Permission.photos.request();
+    if (status.isGranted || await Permission.photosAddOnly.isGranted) {
+        debugPrint("Permission PHOTOS granted.");
+        return await _createDummyGameFileNative(gameName);
+    }
+    return false;
+  }
+  return false;
+}
 
   Future<bool> _createDummyGameFileWeb(String gameName) async {
     try {
@@ -103,35 +125,55 @@ class _DetailScreenState extends State<DetailScreen> {
     }
   }
 
-  Future<bool> _createDummyGameFileNative(String gameName) async {
-    try {
-      final safeName =
-          gameName.replaceAll(RegExp(r'[^\w\s]+'), '').replaceAll(' ', '_');
-      final fileName = "$safeName.exe";
+// detail_screen.dart
 
-      Directory? directory;
-      if (Platform.isAndroid) {
-        directory = Directory('/storage/emulated/0/Download');
-        if (!await directory.exists()) {
-          directory = await getExternalStorageDirectory();
+Future<bool> _createDummyGameFileNative(String gameName) async {
+  try {
+    final safeName =
+        gameName.replaceAll(RegExp(r'[^\w\s]+'), '').replaceAll(' ', '_');
+    final fileName = "$safeName.exe";
+
+    Directory? directory;
+
+    // 🔥 PRIORITAS UTAMA: Gunakan getDownloadsDirectory()
+    // Ini adalah metode yang disarankan dan paling aman untuk Android Scoped Storage 
+    // dan juga berfungsi untuk Desktop.
+    directory = await getDownloadsDirectory();
+    
+    if (directory == null) {
+        // FALLBACK: Hanya dijalankan jika getDownloadsDirectory() gagal.
+        if (Platform.isAndroid) {
+            // Fallback ke direktori spesifik aplikasi (selalu bisa ditulis)
+            directory = await getApplicationDocumentsDirectory(); 
+            debugPrint("Fallback to App Documents directory.");
+        } else {
+            // Fallback ke direktori dokumen umum (untuk Desktop jika downloads null)
+            directory = await getApplicationDocumentsDirectory(); 
         }
-      } else {
-        directory = await getDownloadsDirectory();
-      }
-
-      if (directory == null) return false;
-
-      final String filePath = "${directory.path}/$fileName";
-      final File file = File(filePath);
-      List<int> dummyBytes =
-          List.generate(1024 * 50, (index) => Random().nextInt(255));
-
-      await file.writeAsBytes(dummyBytes);
-      return true;
-    } catch (e) {
-      return false;
     }
+
+    if (directory == null) {
+        debugPrint("Fatal: Could not determine any writable download directory.");
+        return false;
+    }
+
+    // Pastikan folder download ada
+    if (!await directory.exists()) {
+      await directory.create(recursive: true);
+    }
+    
+    final String filePath = "${directory.path}/$fileName";
+    final File file = File(filePath);
+    List<int> dummyBytes =
+        List.generate(1024 * 50, (index) => Random().nextInt(255));
+
+    await file.writeAsBytes(dummyBytes);
+    return true;
+  } catch (e) {
+    debugPrint("File creation error: $e");
+    return false;
   }
+}
 
   void _handleWishlistToggle(
       BuildContext context, GameModel game, bool isCurrentlyWishlisted) {
@@ -208,10 +250,12 @@ class _DetailScreenState extends State<DetailScreen> {
       body: BlocBuilder<DetailCubit, DetailState>(
         builder: (context, state) {
           if (state is DetailLoading) return _buildLoadingScreen();
-          if (state is DetailError)
+          if (state is DetailError) {
             return _buildErrorScreen(context, state.message);
-          if (state is DetailSuccess)
+          }
+          if (state is DetailSuccess) {
             return _buildSuccessContent(context, state.game);
+          }
           return _buildLoadingScreen();
         },
       ),
@@ -467,19 +511,20 @@ class _DetailScreenState extends State<DetailScreen> {
   Widget _buildRatingsSection(GameModel game) {
     List<Map<String, dynamic>> ratings = game.ratingsDistribution;
     if (ratings.isEmpty) {
-      if (game.rating > 4.5)
+      if (game.rating > 4.5) {
         ratings = [
           {'title': 'Exceptional', 'percent': 70.0, 'id': 5},
           {'title': 'Recommended', 'percent': 20.0, 'id': 4},
           {'title': 'Meh', 'percent': 5.0, 'id': 3},
           {'title': 'Skip', 'percent': 5.0, 'id': 1}
         ];
-      else
+      } else {
         ratings = [
           {'title': 'Recommended', 'percent': 60.0, 'id': 4},
           {'title': 'Meh', 'percent': 30.0, 'id': 3},
           {'title': 'Skip', 'percent': 10.0, 'id': 1}
         ];
+      }
     }
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Row(children: [
@@ -696,13 +741,16 @@ class _DetailScreenState extends State<DetailScreen> {
 
   IconData _getPlatformIcon(String platform) {
     final p = platform.toLowerCase();
-    if (p.contains('pc') || p.contains('windows'))
+    if (p.contains('pc') || p.contains('windows')) {
       return FontAwesomeIcons.windows;
-    if (p.contains('playstation') || p.contains('ps'))
+    }
+    if (p.contains('playstation') || p.contains('ps')) {
       return FontAwesomeIcons.playstation;
+    }
     if (p.contains('xbox')) return FontAwesomeIcons.xbox;
-    if (p.contains('switch') || p.contains('nintendo'))
+    if (p.contains('switch') || p.contains('nintendo')) {
       return FontAwesomeIcons.gamepad;
+    }
     if (p.contains('mac') || p.contains('apple')) return FontAwesomeIcons.apple;
     if (p.contains('linux')) return FontAwesomeIcons.linux;
     if (p.contains('android')) return FontAwesomeIcons.android;
@@ -821,15 +869,17 @@ class _FullScreenGalleryState extends State<_FullScreenGallery> {
   }
 
   void _goToPrevious() {
-    if (_currentIndex > 0)
+    if (_currentIndex > 0) {
       _pageController.previousPage(
           duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+    }
   }
 
   void _goToNext() {
-    if (_currentIndex < widget.images.length - 1)
+    if (_currentIndex < widget.images.length - 1) {
       _pageController.nextPage(
           duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+    }
   }
 
   @override

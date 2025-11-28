@@ -5,7 +5,6 @@ import 'package:bitarena/app/app_routes.dart';
 import 'package:bitarena/features/auth/cubit/auth_cubit.dart';
 import 'package:bitarena/features/auth/cubit/auth_state.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});

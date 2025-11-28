@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:carousel_slider/carousel_slider.dart'; // Dipertahankan untuk CarouselOptions (jika dibutuhkan di masa depan)
+// Dipertahankan untuk CarouselOptions (jika dibutuhkan di masa depan)
 import 'package:bitarena/data/models/game_model.dart'; 
 import 'package:flutter/material.dart' hide CarouselController;
 import 'package:go_router/go_router.dart';
