@@ -297,17 +297,248 @@ class _DetailScreenState extends State<DetailScreen> {
     ]);
   }
 
-  Widget _buildAboutSection(GameModel game) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text("About", style: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white)), const SizedBox(height: 8), _ExpandableText(text: game.description)]);
-  Widget _buildSpecsAndDetails(GameModel game) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [_buildDetailRow("Platforms", _buildFilterButtons(context: context, items: game.detailedPlatforms, isPlatform: true)), const SizedBox(height: 16), _buildDetailRow("Genres", _buildFilterButtons(context: context, items: game.detailedGenres, isPlatform: false)), const SizedBox(height: 16), _buildDetailRow("Developer", _buildSimpleText(game.developers.join(', '))), const SizedBox(height: 16), _buildDetailRow("Publisher", _buildSimpleText(game.publishers.join(', '))), const SizedBox(height: 32), if (game.pcRequirements['minimum']!.isNotEmpty) ...[Text("System requirements for PC", style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)), const SizedBox(height: 12), Container(width: double.infinity, padding: const EdgeInsets.all(16), decoration: BoxDecoration(color: const Color(0xFF202020), borderRadius: BorderRadius.circular(8)), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text("Minimum:", style: GoogleFonts.poppins(fontWeight: FontWeight.bold, color: Colors.white)), Text(game.pcRequirements['minimum']!, style: const TextStyle(color: Colors.grey, fontSize: 13, height: 1.5)), const SizedBox(height: 16), if (game.pcRequirements['recommended']!.isNotEmpty) ...[Text("Recommended:", style: GoogleFonts.poppins(fontWeight: FontWeight.bold, color: Colors.white)), Text(game.pcRequirements['recommended']!, style: const TextStyle(color: Colors.grey, fontSize: 13, height: 1.5))]])) ]]);
-  Widget _buildDetailRow(String label, Widget child) => Row(crossAxisAlignment: CrossAxisAlignment.start, children: [SizedBox(width: 100, child: Text(label, style: TextStyle(color: Colors.grey[600], fontSize: 14))), Expanded(child: child)]);
-  Widget _buildSimpleText(String text) => Text(text, style: const TextStyle(color: Colors.white, fontSize: 14, height: 1.4));
-  Widget _buildFilterButtons({required BuildContext context, required List<Map<String, dynamic>> items, required bool isPlatform}) {if (items.isEmpty) return _buildSimpleText("Unknown"); return Wrap(spacing: 6, runSpacing: 6, children: items.map((item) => InkWell(onTap: () {final Map<String, String> filters = {}; if (isPlatform) filters['parent_platforms'] = item['id'].toString(); else filters['genres'] = item['slug']; context.pushNamed(AppRoutes.browse, queryParameters: {'title': "${item['name']} Games", ...filters});}, child: Container(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6), decoration: BoxDecoration(color: const Color(0xFF2A2A2A), borderRadius: BorderRadius.circular(4)), child: Text(item['name'], style: const TextStyle(color: Colors.white, fontSize: 12))))).toList());}
-  IconData _getPlatformIcon(String platform) {final p = platform.toLowerCase(); if (p.contains('pc') || p.contains('windows')) return FontAwesomeIcons.windows; if (p.contains('playstation') || p.contains('ps')) return FontAwesomeIcons.playstation; if (p.contains('xbox')) return FontAwesomeIcons.xbox; if (p.contains('switch') || p.contains('nintendo')) return FontAwesomeIcons.gamepad; if (p.contains('mac') || p.contains('apple')) return FontAwesomeIcons.apple; if (p.contains('linux')) return FontAwesomeIcons.linux; if (p.contains('android')) return FontAwesomeIcons.android; if (p.contains('ios')) return FontAwesomeIcons.appStoreIos; return FontAwesomeIcons.gamepad;}
-  String _getRatingTitle(double rating) {if (rating >= 4.5) return "Exceptional"; if (rating >= 3.5) return "Recommended"; if (rating >= 2.5) return "Meh"; return "Skip";}
-  IconData _getRatingIcon(double rating) {if (rating >= 4.5) return FontAwesomeIcons.bullseye; if (rating >= 3.5) return FontAwesomeIcons.thumbsUp; if (rating >= 2.5) return FontAwesomeIcons.faceMeh; return FontAwesomeIcons.ban;}
-  Color _getRatingColor(int id) {switch (id) {case 5: return const Color(0xFF6DC849); case 4: return const Color(0xFF4D85F0); case 3: return const Color(0xFFFDCA52); case 1: return const Color(0xFFFF4842); default: return Colors.grey;}}
-  Widget _buildLoadingScreen() => const Scaffold(backgroundColor: Color(0xFF121212), body: Center(child: CircularProgressIndicator()));
-  Widget _buildErrorScreen(BuildContext context, String msg) => Scaffold(appBar: AppBar(backgroundColor: Colors.transparent), backgroundColor: const Color(0xFF121212), body: Center(child: Text("Error: $msg", style: const TextStyle(color: Colors.white))));
+  Widget _buildAboutSection(GameModel game) => Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "About",
+          style: GoogleFonts.poppins(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        const SizedBox(height: 8),
+        _ExpandableText(text: game.description),
+      ],
+    );
+
+Widget _buildSpecsAndDetails(GameModel game) => Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildDetailRow(
+          "Platforms",
+          _buildFilterButtons(
+            context: context,
+            items: game.detailedPlatforms,
+            isPlatform: true,
+          ),
+        ),
+        const SizedBox(height: 16),
+        _buildDetailRow(
+          "Genres",
+          _buildFilterButtons(
+            context: context,
+            items: game.detailedGenres,
+            isPlatform: false,
+          ),
+        ),
+        const SizedBox(height: 16),
+        _buildDetailRow(
+          "Developer",
+          _buildSimpleText(game.developers.join(', ')),
+        ),
+        const SizedBox(height: 16),
+        _buildDetailRow(
+          "Publisher",
+          _buildSimpleText(game.publishers.join(', ')),
+        ),
+        const SizedBox(height: 32),
+        if (game.pcRequirements['minimum']!.isNotEmpty) ...[
+          Text(
+            "System requirements for PC",
+            style: GoogleFonts.poppins(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(16),
+            
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                
+                Text(
+                  game.pcRequirements['minimum']!,
+                  style: const TextStyle(
+                    color: Colors.grey,
+                    fontSize: 13,
+                    height: 1.5,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                if (game.pcRequirements['recommended']!.isNotEmpty) ...[
+                  
+                  Text(
+                    game.pcRequirements['recommended']!,
+                    style: const TextStyle(
+                      color: Colors.grey,
+                      fontSize: 13,
+                      height: 1.5,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ],
+    );
+
+Widget _buildDetailRow(String label, Widget child) => Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          width: 100,
+          child: Text(
+            label,
+            style: TextStyle(color: Colors.grey[600], fontSize: 14),
+          ),
+        ),
+        Expanded(child: child),
+      ],
+    );
+
+Widget _buildSimpleText(String text) => Text(
+      text,
+      style: const TextStyle(
+        color: Colors.white,
+        fontSize: 14,
+        height: 1.4,
+      ),
+    );
+
+Widget _buildFilterButtons({
+  required BuildContext context,
+  required List<Map<String, dynamic>> items,
+  required bool isPlatform,
+}) {
+  if (items.isEmpty) return _buildSimpleText("Unknown");
+  return Wrap(
+    spacing: 6,
+    runSpacing: 6,
+    children: items
+        .map(
+          (item) => InkWell(
+            onTap: () {
+              final Map<String, String> filters = {};
+              if (isPlatform) {
+                filters['parent_platforms'] = item['id'].toString();
+              } else {
+                filters['genres'] = item['slug'];
+              }
+              context.pushNamed(
+                AppRoutes.browse,
+                queryParameters: {
+                  'title': "${item['name']} Games",
+                  ...filters
+                },
+              );
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 10,
+                vertical: 6,
+              ),
+              decoration: BoxDecoration(
+                color: const Color(0xFF2A2A2A),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Text(
+                item['name'],
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                ),
+              ),
+            ),
+          ),
+        )
+        .toList(),
+  );
+}
+
+IconData _getPlatformIcon(String platform) {
+  final p = platform.toLowerCase();
+  if (p.contains('pc') || p.contains('windows')) {
+    return FontAwesomeIcons.windows;
+  }
+  if (p.contains('playstation') || p.contains('ps')) {
+    return FontAwesomeIcons.playstation;
+  }
+  if (p.contains('xbox')) {
+    return FontAwesomeIcons.xbox;
+  }
+  if (p.contains('switch') || p.contains('nintendo')) {
+    return FontAwesomeIcons.gamepad;
+  }
+  if (p.contains('mac') || p.contains('apple')) {
+    return FontAwesomeIcons.apple;
+  }
+  if (p.contains('linux')) {
+    return FontAwesomeIcons.linux;
+  }
+  if (p.contains('android')) {
+    return FontAwesomeIcons.android;
+  }
+  if (p.contains('ios')) {
+    return FontAwesomeIcons.appStoreIos;
+  }
+  return FontAwesomeIcons.gamepad;
+}
+
+String _getRatingTitle(double rating) {
+  if (rating >= 4.5) return "Exceptional";
+  if (rating >= 3.5) return "Recommended";
+  if (rating >= 2.5) return "Meh";
+  return "Skip";
+}
+
+IconData _getRatingIcon(double rating) {
+  if (rating >= 4.5) return FontAwesomeIcons.bullseye;
+  if (rating >= 3.5) return FontAwesomeIcons.thumbsUp;
+  if (rating >= 2.5) return FontAwesomeIcons.faceMeh;
+  return FontAwesomeIcons.ban;
+}
+
+Color _getRatingColor(int id) {
+  switch (id) {
+    case 5:
+      return const Color(0xFF6DC849);
+    case 4:
+      return const Color(0xFF4D85F0);
+    case 3:
+      return const Color(0xFFFDCA52);
+    case 1:
+      return const Color(0xFFFF4842);
+    default:
+      return Colors.grey;
+  }
+}
+
+Widget _buildLoadingScreen() => const Scaffold(
+      backgroundColor: Color(0xFF121212),
+      body: Center(
+        child: CircularProgressIndicator(),
+      ),
+    );
+
+Widget _buildErrorScreen(BuildContext context, String msg) => Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+      ),
+      backgroundColor: const Color(0xFF121212),
+      body: Center(
+        child: Text(
+          "Error: $msg",
+          style: const TextStyle(color: Colors.white),
+        ),
+      ),
+    );
 }
 
 extension StringExtension on String { String capitalize() => "${this[0].toUpperCase()}${substring(1)}"; }
