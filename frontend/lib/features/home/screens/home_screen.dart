@@ -7,11 +7,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:bitarena/features/home/bloc/home_bloc.dart';
 import 'package:bitarena/features/home/widgets/home_card.dart';
 import 'package:bitarena/features/home/widgets/home_banner.dart';
-import 'package:bitarena/features/home/widgets/home_banner_carousel.dart' hide SmallBannerList;
 import 'package:go_router/go_router.dart';
 import 'package:bitarena/app/app_routes.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:bitarena/features/home/widgets/game_card_skeleton.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -278,65 +278,30 @@ class _HomeScreenState extends State<HomeScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // BANNER
-                      BlocBuilder<HomeBloc, HomeState>(
-  builder: (context, state) {
-    if (state is HomeLoading || state is HomeInitial) {
-      // Shimmer untuk tampilan loading banner utama dan 3 item kecil
-      return Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            flex: 2,
-            child: Shimmer.fromColors(baseColor: Colors.grey[850]!, highlightColor: Colors.grey[700]!, child: Container(height: 400, width: double.infinity, color: Colors.grey[850])),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            flex: 1,
-            child: Column(
-              children: List.generate(3, (index) => 
-                // Container harus memiliki tinggi yang sama dengan SmallBannerCard (128)
-                Shimmer.fromColors(baseColor: Colors.grey[850]!, highlightColor: Colors.grey[700]!, child: Container(height: 128, margin: const EdgeInsets.only(bottom: 8.0), width: double.infinity, color: Colors.grey[850]))
-              ),
-            ),
-          ),
-        ],
-      );
-    }
-    if (state is HomeSuccess) {
-      // Ambil 5 game pertama untuk ditampilkan di banner
-      final allBannerGames = state.games.take(4).toList();
-      if (allBannerGames.isEmpty) return const SizedBox.shrink();
+                     BlocBuilder<HomeBloc, HomeState>(
+                    builder: (context, state) {
+                      if (state is HomeLoading || state is HomeInitial) {
+                        return Shimmer.fromColors(
+                          baseColor: Colors.grey[850]!, 
+                          highlightColor: Colors.grey[700]!, 
+                          child: Container(height: 530, width: double.infinity, color: Colors.grey[850])
+                        );
+                      }
+                      if (state is HomeSuccess) {
+                        // Ambil 3 game untuk Banner
+                        final bannerGames = state.games.take(3).toList();
+                        if (bannerGames.isEmpty) return const SizedBox.shrink();
 
-      // Game pertama untuk banner utama
-      final mainGame = allBannerGames.first;
-      // 4 game sisanya, kita hanya akan menggunakan 3 game teratas di SmallBannerList
-      final smallGames = allBannerGames.skip(1).toList(); 
-
-      return SizedBox(
-        height: 530, 
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Kolom Kiri: Main Banner (Gunakan MainBannerCard yang sudah public)
-            Expanded(
-              flex: 3, 
-              child: MainBannerCard(game: mainGame, height: 500),
-            ),
-            const SizedBox(width: 24), 
-
-            // Kolom Kanan: Daftar Game Kecil (Gunakan SmallBannerList yang sudah public)
-            Expanded(
-              flex: 1, 
-              child: SmallBannerList(games: smallGames),
-            ),
-          ],
-        ),
-      );
-    }
-    return const SizedBox.shrink();
-  },
-),
-
+                        // PERBAIKAN: Langsung panggil widget tanpa LayoutBuilder
+                        // Widget FeaturedGamesSection sudah otomatis mengatur Desktop/Mobile
+                        return FeaturedGamesSection(
+                          games: bannerGames,
+                          height: 530, 
+                        );
+                      }
+                      return const SizedBox.shrink();
+                    },
+                  ),
                       // FEATURED GAMES (HORIZONTAL)
                       Padding(
                         padding: const EdgeInsets.all(16.0),

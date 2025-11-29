@@ -1,23 +1,53 @@
-// File: lib/features/home/widgets/home_banner_carousel.dart (FINAL REVISI)
+// File: lib/features/home/widgets/home_banner_carousel.dart
 
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-// Dipertahankan untuk CarouselOptions (jika dibutuhkan di masa depan)
-import 'package:bitarena/data/models/game_model.dart'; 
-import 'package:flutter/material.dart' hide CarouselController;
+import 'package:carousel_slider/carousel_slider.dart';
+import 'package:bitarena/data/models/game_model.dart';
 import 'package:go_router/go_router.dart';
-import 'package:bitarena/app/app_routes.dart'; 
+import 'package:bitarena/app/app_routes.dart';
 
-// Hapus widget HomeBannerCarousel, karena tidak lagi digunakan sebagai carousel
-// dan kita akan menggunakan widget MainBannerCard dan SmallBannerList secara langsung.
+// --- 1. WIDGET CAROUSEL (BANNER BESAR KIRI) ---
+class HomeBannerCarousel extends StatelessWidget {
+  final List<GameModel> games;
+  final double height;
 
-// Widget yang sudah diubah namanya menjadi public (menghapus underscore)
+  const HomeBannerCarousel({
+    super.key,
+    required this.games,
+    this.height = 500.0, // Default disamakan dengan inputan Anda
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (games.isEmpty) return const SizedBox.shrink();
+
+    return CarouselSlider.builder(
+      itemCount: games.length,
+      itemBuilder: (context, index, realIndex) {
+        final game = games[index];
+        // Menggunakan MainBannerCard untuk setiap item carousel
+        return MainBannerCard(game: game, height: height);
+      },
+      options: CarouselOptions(
+        height: height,
+        autoPlay: true, // Animasi Otomatis
+        autoPlayInterval: const Duration(seconds: 5), // Durasi ganti slide
+        viewportFraction: 1.0, // PENTING: 1.0 agar ukuran pas memenuhi container (tidak mengecil)
+        enlargeCenterPage: false, // False agar tidak ada efek zoom in/out yang mengubah ukuran
+        enableInfiniteScroll: true, // Bisa swipe terus menerus
+        scrollPhysics: const BouncingScrollPhysics(), // Efek swipe halus
+      ),
+    );
+  }
+}
+
+// --- 2. MAIN BANNER CARD (DESIGN KOTAK BESAR) ---
 class MainBannerCard extends StatelessWidget {
   final GameModel game;
   final double height;
-  
-  // Ubah key agar sesuai dengan penggunaan di home_screen.dart
-  const MainBannerCard({super.key, required this.game, required this.height}); 
+
+  const MainBannerCard({super.key, required this.game, required this.height});
 
   @override
   Widget build(BuildContext context) {
@@ -29,23 +59,25 @@ class MainBannerCard extends StatelessWidget {
         },
         child: SizedBox(
           height: height,
+          width: double.infinity, // Pastikan lebar memenuhi parent carousel
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(8.0), // Tambahkan radius agar sesuai dengan gambar
+            borderRadius: BorderRadius.circular(8.0),
             child: Stack(
               fit: StackFit.expand,
               children: [
-                // 1. Gambar Background
+                // Gambar Background
                 CachedNetworkImage(
                   imageUrl: game.backgroundImage,
                   fit: BoxFit.cover,
                   placeholder: (context, url) => Container(color: Colors.grey[900]),
+                  errorWidget: (context, url, error) => Container(color: Colors.grey[900], child: const Icon(Icons.error)),
                 ),
-                
-                // 2. Gradient Gelap
+
+                // Gradient Gelap
                 Container(
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
-                      begin: Alignment.bottomCenter, 
+                      begin: Alignment.bottomCenter,
                       end: Alignment.topCenter,
                       colors: [
                         Colors.black.withOpacity(0.8),
@@ -57,7 +89,7 @@ class MainBannerCard extends StatelessWidget {
                   ),
                 ),
 
-                // 3. Konten Teks
+                // Konten Teks
                 Padding(
                   padding: const EdgeInsets.all(24.0),
                   child: Column(
@@ -65,11 +97,13 @@ class MainBannerCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        game.name, 
+                        game.name,
                         style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
                             ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ],
                   ),
@@ -83,7 +117,7 @@ class MainBannerCard extends StatelessWidget {
   }
 }
 
-// Widget baru untuk daftar game kecil di sebelah kanan (Diubah namanya menjadi public)
+// --- 3. SMALL BANNER CARD (DESIGN KOTAK KECIL KANAN) ---
 class SmallBannerCard extends StatelessWidget {
   final GameModel game;
   const SmallBannerCard({super.key, required this.game});
@@ -97,21 +131,20 @@ class SmallBannerCard extends StatelessWidget {
           context.push('${AppRoutes.detail}/${game.id}');
         },
         child: Container(
-          height: 128, // Sesuaikan tinggi sedikit agar 3 item pas 400px (128*3 + 8*2 = 400)
-          margin: const EdgeInsets.only(bottom: 8.0), 
+          // Tinggi disesuaikan agar 3 item pas sejajar dengan banner utama (500px / 3 dikurangi margin)
+          // 158 * 3 + 13*2 = ~500
+          height: 158, 
+          margin: const EdgeInsets.only(bottom: 13.0),
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(8.0), 
+            borderRadius: BorderRadius.circular(8.0),
             child: Stack(
               fit: StackFit.expand,
               children: [
-                // 1. Gambar Background
                 CachedNetworkImage(
                   imageUrl: game.backgroundImage,
                   fit: BoxFit.cover,
                   placeholder: (context, url) => Container(color: Colors.grey[900]),
                 ),
-                
-                // 2. Gradient Gelap 
                 Container(
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
@@ -126,8 +159,6 @@ class SmallBannerCard extends StatelessWidget {
                     ),
                   ),
                 ),
-
-                // 3. Konten Teks
                 Padding(
                   padding: const EdgeInsets.all(12.0),
                   child: Column(
@@ -156,7 +187,7 @@ class SmallBannerCard extends StatelessWidget {
   }
 }
 
-// Widget baru untuk menampung daftar game kecil
+// --- 4. SMALL BANNER LIST (WRAPPER KANAN) ---
 class SmallBannerList extends StatelessWidget {
   final List<GameModel> games;
 
@@ -164,12 +195,11 @@ class SmallBannerList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Karena kita hanya ingin menampilkan 3, pastikan listnya hanya 3.
+    // Pastikan hanya mengambil 3 game untuk sisi kanan
     final List<GameModel> top3Games = games.take(3).toList();
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
-      // Menggunakan SmallBannerCard (yang sudah public)
       children: top3Games.map((game) => SmallBannerCard(game: game)).toList(),
     );
   }
