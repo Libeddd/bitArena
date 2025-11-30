@@ -1,5 +1,4 @@
 <p align="center">
- 
  🏠 bitArena: Cross Platform Dynamic Game Content Retrieval
 
 <p align="center">
