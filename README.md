@@ -1,11 +1,12 @@
 <p align="center">
+ 
  🏠 bitArena: Cross Platform Dynamic Game Content Retrieval
 
 <p align="center">
 Empowering Innovation, Transforming Digital Experiences:
 
 <p align="center">
-> ✨ Built with the tools and technologies: 
+✨ Built with the tools and technologies: 
 
 <p align="center">
 🛠️ Tech Stack
