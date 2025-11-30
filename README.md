@@ -1,7 +1,7 @@
 <p align="center">
-<b> 🏠 Kostong - Web Penyedia Kost </b>
+<b> 🏠 bitArena Cross Platform Dynamic Game Content Retrieval </b>
 
-  
+
 <p align="center">
 Empowering Innovation, Transforming Digital Experiences:
 
@@ -51,12 +51,14 @@ Empowering Innovation, Transforming Digital Experiences:
 
 ---
 
-## 🧩 Tech Stack
+
+🧩 Tech Stack
+
 
 | Layer | Teknologi yang Digunakan |
 |-------|--------------------------|
 | **Frontend** | Flutter 3.x (Dart) |
-| **Backend** | Node.js (Express.js) |
-| **Database** | MongoDB Atlas |
-| **API Format** | RESTful JSON |
+| **Backend** | Flutter (Dart) |
+| **Database** | Firebase |
+| **API Format** | RESTful Web API |
 | **UI Components** | Material Design + Card View |
