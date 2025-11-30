@@ -19,14 +19,14 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
   final List<Map<String, String>> _teamMembers = const [
     {
       'name': 'Mochammad Abid Sunaryo',
-      'role': 'Chief Executive Officer',
+      'role': 'Leader Engineer',
       'image': 'assets/team_member_1.png',
       'github': 'https://github.com/alexwijaya',
       'instagram': 'https://instagram.com/alexwijaya',
     },
     {
       'name': 'Gofur Aryan Nur Karim',
-      'role': 'Chief Executive Officer',
+      'role': 'Vice Leader Engineer',
       'image': 'assets/team_member_2.png',
       'github': 'https://github.com/Gofurryan',
       'instagram': 'https://instagram.com/gfryann',
@@ -46,15 +46,22 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
       'instagram': 'https://instagram.com/nrthohir',
     },
     {
-      'name': 'Eko Prasetyo',
-      'role': 'DevOps Specialist',
+      'name': 'Izha Valensy',
+      'role': 'Lead Backend Engineer',
+      'image': 'assets/team_member_4.png',
+      'github': 'https://github.com/1jaxxx',
+      'instagram': 'https://instagram.com/ijakk_iv',
+    },
+    {
+      'name': 'Muhammad Amrullah Widyapratama',
+      'role': 'Support Frontend Engineer',
       'image': 'assets/team_member_5.png',
-      'github': 'https://github.com/ekoprasetyo',
-      'instagram': 'https://instagram.com/ekoprasetyo',
+      'github': 'https://github.com/AxelPra',
+      'instagram': 'https://instagram.com/xel_prtmaa_',
     },
     {
       'name': 'Fanny Rahma',
-      'role': 'UI/UX Designer',
+      'role': 'Lead Backend Engineer',
       'image': 'assets/team_member_6.png',
       'github': 'https://github.com/fannyrahma',
       'instagram': 'https://instagram.com/fannyrahma',
@@ -74,11 +81,11 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
       'instagram': 'https://instagram.com/haniifah',
     },
     {
-      'name': 'Indra Lesmana',
+      'name': 'Muhammad Noor Abizar',
       'role': 'System Analyst',
       'image': 'assets/team_member_9.png',
-      'github': 'https://github.com/indralesmana',
-      'instagram': 'https://instagram.com/indralesmana',
+      'github': 'https://github.com/mnabizar',
+      'instagram': 'https://instagram.com/mnabizar',
     },
   ];
 
