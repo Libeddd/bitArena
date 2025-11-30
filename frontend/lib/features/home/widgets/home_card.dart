@@ -148,7 +148,7 @@ class _HomeCardState extends State<HomeCard> {
                           child: Icon(
                             _isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
                             color: Colors.white,
-                            size: 24,
+                            size: 30,
                           ),
                         ),
                       ],

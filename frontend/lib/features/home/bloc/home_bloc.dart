@@ -1,3 +1,5 @@
+// File: lib/features/home/bloc/home_bloc.dart
+
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:bitarena/data/models/game_model.dart';
@@ -10,28 +12,19 @@ abstract class HomeEvent extends Equatable {
   List<Object> get props => [];
 }
 
-// Event untuk mengambil daftar game awal (halaman 1)
 class HomeFetchList extends HomeEvent {}
-
-// Event BARU untuk mengambil halaman berikutnya
 class HomeFetchMoreGames extends HomeEvent {}
 
-// Event untuk pencarian (ini akan mematikan pagination)
 class HomeSearchGames extends HomeEvent {
   final String query;
-  // DIUBAH: Menggunakan named parameter
   const HomeSearchGames({required this.query});
-
   @override
   List<Object> get props => [query];
 }
 
-// Event untuk filter berdasarkan genre
 class HomeFilterByGenre extends HomeEvent {
   final String genre;
-  // DIUBAH: Menggunakan named parameter
   const HomeFilterByGenre({required this.genre});
-
   @override
   List<Object> get props => [genre];
 }
@@ -44,8 +37,7 @@ abstract class HomeState extends Equatable {
 }
 
 class HomeInitial extends HomeState {}
-
-class HomeLoading extends HomeState {} // Hanya untuk loading awal
+class HomeLoading extends HomeState {} 
 
 class HomeSuccess extends HomeState {
   final List<GameModel> games;
@@ -81,7 +73,6 @@ class HomeSuccess extends HomeState {
 class HomeError extends HomeState {
   final String message;
   const HomeError(this.message);
-
   @override
   List<Object> get props => [message];
 }
@@ -102,7 +93,36 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   ) async {
     emit(HomeLoading());
     try {
-      final games = await _gameRepository.getGames(page: 1);
+      // 1. Ambil List Game Awal (Data Standar: Nama, Gambar, Rating)
+      // API ini BELUM memuat deskripsi/about
+      List<GameModel> games = await _gameRepository.getGames(page: 1);
+
+      // --- PERBAIKAN KHUSUS BANNER ---
+      // Kita ambil detail lengkap untuk 3 game teratas agar Banner punya Deskripsi & Trailer
+      if (games.isNotEmpty) {
+        final int bannerCount = games.length > 3 ? 3 : games.length;
+        
+        // Siapkan request paralel agar loading tidak terlalu lama
+        final List<Future<GameModel>> detailFutures = [];
+        for (int i = 0; i < bannerCount; i++) {
+          detailFutures.add(_gameRepository.getGameDetails(id: games[i].id.toString()));
+        }
+
+        try {
+          // Tunggu semua detail (Description, Clip, Screenshots) selesai dimuat
+          final List<GameModel> detailedGames = await Future.wait(detailFutures);
+          
+          // Replace object game di list dengan versi yang punya detail lengkap
+          for (int i = 0; i < bannerCount; i++) {
+            games[i] = detailedGames[i];
+          }
+        } catch (e) {
+          // Jika gagal ambil detail, biarkan tampil tanpa deskripsi (jangan crash)
+          print("Warning: Gagal memuat detail banner: $e");
+        }
+      }
+      // -------------------------------
+
       emit(
         HomeSuccess(games: games, currentPage: 1, hasReachedMax: games.isEmpty),
       );
@@ -150,7 +170,6 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   ) async {
     emit(HomeLoading());
     try {
-      // Pastikan Anda memanggil event.query di sini
       final games = await _gameRepository.searchGames(query: event.query);
       emit(HomeSuccess(games: games, currentPage: 1, hasReachedMax: true));
     } catch (e) {

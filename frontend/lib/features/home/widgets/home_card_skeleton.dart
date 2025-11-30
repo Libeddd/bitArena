@@ -13,8 +13,6 @@ class HomeCardSkeleton extends StatelessWidget {
       width: width,
       height: height,
       decoration: BoxDecoration(
-        // Ini adalah warna dasar skeleton
-        // Warna ini akan ditimpa oleh Shimmer, tapi bagus untuk fallback
         color: Colors.grey[800], 
         borderRadius: BorderRadius.circular(radius),
       ),
@@ -26,7 +24,7 @@ class HomeCardSkeleton extends StatelessWidget {
     // Ini adalah bentuk kartu Anda
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF2A2A2A), // Warna latar belakang kartu
+        color: const Color(0xFF2A2A2A),
         borderRadius: BorderRadius.circular(12.0),
       ),
       child: Column(

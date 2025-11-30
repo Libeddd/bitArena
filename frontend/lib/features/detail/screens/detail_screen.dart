@@ -195,40 +195,6 @@ Future<bool> _createDummyGameFileNative(String gameName) async {
     );
   }
 
-  Future<void> _playVideo(
-      BuildContext context, String? videoUrl, String gameName) async {
-    if (videoUrl != null && videoUrl.isNotEmpty) {
-      final Uri uri = Uri.parse(videoUrl);
-      try {
-        if (await canLaunchUrl(uri)) {
-          await launchUrl(uri, mode: LaunchMode.externalApplication);
-        } else {
-          _showErrorSnack("Could not launch video player");
-        }
-      } catch (e) {
-        _showErrorSnack("Error: $e");
-      }
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text("No official trailer. Search on YouTube?"),
-          action: SnackBarAction(
-            label: "Search",
-            textColor: Colors.amber,
-            onPressed: () async {
-              final query = Uri.encodeComponent("$gameName trailer");
-              final ytUrl = Uri.parse(
-                  "https://www.youtube.com/results?search_query=$query");
-              if (await canLaunchUrl(ytUrl)) {
-                await launchUrl(ytUrl, mode: LaunchMode.externalApplication);
-              }
-            },
-          ),
-        ),
-      );
-    }
-  }
-
   void _openFullScreenGallery(
       BuildContext context, List<String> images, int index) {
     Navigator.push(
@@ -263,7 +229,6 @@ Future<bool> _createDummyGameFileNative(String gameName) async {
   }
 
   Widget _buildSuccessContent(BuildContext context, GameModel game) {
-    final String? videoToPlay = game.trailerUrl ?? game.clip;
 
     const double kMaxWidth = 1250.0;
 
@@ -273,13 +238,14 @@ Future<bool> _createDummyGameFileNative(String gameName) async {
           top: 0,
           left: 0,
           right: 0,
-          height: 500,
+          height: 600,
           child: Stack(
             fit: StackFit.expand,
             children: [
               CachedNetworkImage(
                 imageUrl: game.backgroundImage,
                 fit: BoxFit.cover,
+                alignment: Alignment.topCenter,
                 placeholder: (context, url) => Container(color: Colors.black),
               ),
               Container(
@@ -739,53 +705,53 @@ Future<bool> _createDummyGameFileNative(String gameName) async {
             .toList());
   }
 
-  IconData _getPlatformIcon(String platform) {
-    final p = platform.toLowerCase();
-    if (p.contains('pc') || p.contains('windows')) {
-      return FontAwesomeIcons.windows;
-    }
-    if (p.contains('playstation') || p.contains('ps')) {
-      return FontAwesomeIcons.playstation;
-    }
-    if (p.contains('xbox')) return FontAwesomeIcons.xbox;
-    if (p.contains('switch') || p.contains('nintendo')) {
-      return FontAwesomeIcons.gamepad;
-    }
-    if (p.contains('mac') || p.contains('apple')) return FontAwesomeIcons.apple;
-    if (p.contains('linux')) return FontAwesomeIcons.linux;
-    if (p.contains('android')) return FontAwesomeIcons.android;
-    if (p.contains('ios')) return FontAwesomeIcons.appStoreIos;
-    return FontAwesomeIcons.gamepad;
-  }
+      IconData _getPlatformIcon(String platform) {
+        final p = platform.toLowerCase();
+        if (p.contains('pc') || p.contains('windows')) {
+          return FontAwesomeIcons.windows;
+        }
+        if (p.contains('playstation') || p.contains('ps')) {
+          return FontAwesomeIcons.playstation;
+        }
+        if (p.contains('xbox')) return FontAwesomeIcons.xbox;
+        if (p.contains('switch') || p.contains('nintendo')) {
+          return FontAwesomeIcons.gamepad;
+        }
+        if (p.contains('mac') || p.contains('apple')) return FontAwesomeIcons.apple;
+        if (p.contains('linux')) return FontAwesomeIcons.linux;
+        if (p.contains('android')) return FontAwesomeIcons.android;
+        if (p.contains('ios')) return FontAwesomeIcons.appStoreIos;
+        return FontAwesomeIcons.gamepad;
+      }
 
-  String _getRatingTitle(double rating) {
-    if (rating >= 4.5) return "Exceptional";
-    if (rating >= 3.5) return "Recommended";
-    if (rating >= 2.5) return "Meh";
-    return "Skip";
-  }
+      String _getRatingTitle(double rating) {
+        if (rating >= 4.5) return "Exceptional";
+        if (rating >= 3.5) return "Recommended";
+        if (rating >= 2.5) return "Meh";
+        return "Skip";
+      }
 
-  IconData _getRatingIcon(double rating) {
-    if (rating >= 4.5) return FontAwesomeIcons.bullseye;
-    if (rating >= 3.5) return FontAwesomeIcons.thumbsUp;
-    if (rating >= 2.5) return FontAwesomeIcons.faceMeh;
-    return FontAwesomeIcons.ban;
-  }
+      IconData _getRatingIcon(double rating) {
+        if (rating >= 4.5) return FontAwesomeIcons.bullseye;
+        if (rating >= 3.5) return FontAwesomeIcons.thumbsUp;
+        if (rating >= 2.5) return FontAwesomeIcons.faceMeh;
+        return FontAwesomeIcons.ban;
+      }
 
-  Color _getRatingColor(int id) {
-    switch (id) {
-      case 5:
-        return const Color(0xFF6DC849);
-      case 4:
-        return const Color(0xFF4D85F0);
-      case 3:
-        return const Color(0xFFFDCA52);
-      case 1:
-        return const Color(0xFFFF4842);
-      default:
-        return Colors.grey;
-    }
-  }
+      Color _getRatingColor(int id) {
+        switch (id) {
+          case 5:
+            return const Color(0xFF6DC849);
+          case 4:
+            return const Color(0xFF4D85F0);
+          case 3:
+            return const Color(0xFFFDCA52);
+          case 1:
+            return const Color(0xFFFF4842);
+          default:
+            return Colors.grey;
+        }
+      }
 
   Widget _buildLoadingScreen() => const Scaffold(
       backgroundColor: Color(0xFF121212),

@@ -7,11 +7,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:bitarena/features/home/bloc/home_bloc.dart';
 import 'package:bitarena/features/home/widgets/home_card.dart';
 import 'package:bitarena/features/home/widgets/home_banner.dart';
+import 'package:bitarena/features/home/widgets/home_banner_skeleton.dart';
 import 'package:go_router/go_router.dart';
 import 'package:bitarena/app/app_routes.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:bitarena/features/home/widgets/game_card_skeleton.dart';
-import 'package:carousel_slider/carousel_slider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -84,8 +84,8 @@ class _HomeScreenState extends State<HomeScreen> {
     // Variabel Responsif
     final screenWidth = MediaQuery.of(context).size.width;
     final bool isDesktop = screenWidth > 800;
-    final double cardWidth = isDesktop ? 280 : 200;
-    final double cardHeight = isDesktop ? 380 : 290;
+    final double cardWidth = isDesktop ? 220 : 160;
+    final double cardHeight = isDesktop ? 350 : 270;
 
     const double kMaxWidth = 1350.0;
 
@@ -284,7 +284,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         return Shimmer.fromColors(
                           baseColor: Colors.grey[850]!, 
                           highlightColor: Colors.grey[700]!, 
-                          child: Container(height: 530, width: double.infinity, color: Colors.grey[850])
+                          child: const HomeBannerSkeleton(),
                         );
                       }
                       if (state is HomeSuccess) {

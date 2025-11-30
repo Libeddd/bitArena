@@ -131,8 +131,6 @@ class SmallBannerCard extends StatelessWidget {
           context.push('${AppRoutes.detail}/${game.id}');
         },
         child: Container(
-          // Tinggi disesuaikan agar 3 item pas sejajar dengan banner utama (500px / 3 dikurangi margin)
-          // 158 * 3 + 13*2 = ~500
           height: 158, 
           margin: const EdgeInsets.only(bottom: 13.0),
           child: ClipRRect(

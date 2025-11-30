@@ -258,38 +258,16 @@ class _BigBannerCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 16),
                     // Progress Bar
-                    if (isActive)
-                      AnimatedBuilder(
-                        animation: progressAnimation,
-                        builder: (context, child) {
-                          return Container(
-                            height: 4.0,
-                            width: 50,
-                            decoration: BoxDecoration(
-                              color: Colors.white24,
-                              borderRadius: BorderRadius.circular(2.0),
-                            ),
-                            alignment: Alignment.centerLeft,
-                            child: FractionallySizedBox(
-                              widthFactor: progressAnimation.value,
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(2.0),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.white.withOpacity(0.5),
-                                      blurRadius: 6,
-                                    )
-                                  ]
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      )
-                    else 
-                      Container(height: 4.0, width: double.infinity, color: Colors.transparent),
+                    Text(
+                      game.description, // Pastikan ini description_raw (clean text) dari model
+                      style: const TextStyle(
+                        color: Colors.white70, // Warna agak abu agar kontras dengan judul
+                        fontSize: 14,
+                        height: 1.4,
+                      ),
+                      maxLines: 3, // Batasi 3 baris
+                      overflow: TextOverflow.ellipsis,
+                      ),
                   ],
                 ),
               ),
@@ -330,7 +308,7 @@ class _SideListCard extends StatelessWidget {
                 imageUrl: game.backgroundImage,
                 fit: BoxFit.cover,
                 // Di Mobile maupun Desktop, item non-aktif agak gelap
-                color: isActive ? null : Colors.black.withOpacity(0.6),
+                color: isActive ? null : Colors.black.withOpacity(0.5),
                 colorBlendMode: isActive ? null : BlendMode.darken,
               ),
               
