@@ -7,12 +7,6 @@ Empowering Innovation, Transforming Digital Experiences:
 <p align="center">
 > ✨ Built with the tools and technologies: 
 
-<br>
- 
-![Flutter](https://img.shields.io/badge/Flutter-3.x-blue?logo=flutter)
-![json](https://img.shields.io/badge/Node.js-Express-green?logo=node.js)
-![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-darkgreen?logo=mongodb)
-
 <p align="center">
 🛠️ Tech Stack
 
