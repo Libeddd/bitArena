@@ -1,6 +1,6 @@
 <p align="center">
-**🏠 bitArena: Cross Platform Dynamic Game Content Retrieval**
-
+** 🏠 bitArena: Cross Platform Dynamic Game Content Retrieval**
+  # 🏠 Kostong - Web Penyedia Kost
 <p align="center">
 Empowering Innovation, Transforming Digital Experiences:
 
