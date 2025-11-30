@@ -1,3 +1,4 @@
+<p align="center">
 <b> 🏠 Kostong - Web Penyedia Kost </b>
   
 <p align="center">
