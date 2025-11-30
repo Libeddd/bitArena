@@ -16,7 +16,8 @@ import 'package:shimmer/shimmer.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_file_dialog/flutter_file_dialog.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 
 class DetailScreen extends StatefulWidget {
   final String gameId;
@@ -48,69 +49,121 @@ class _DetailScreenState extends State<DetailScreen> {
     );
   }
 
-// detail_screen.dart
+  // --- LOGIKA DOWNLOAD UTAMA ---
 
-Future<bool> _executeDownloadLogic(String gameName) async {
-  try {
-    if (kIsWeb) {
-      // Platform Web
-      return await _createDummyGameFileWeb(gameName);
-    } else if (Platform.isAndroid || Platform.isIOS) {
-      // Platform Mobile (membutuhkan pemeriksaan izin)
-      return await _checkPermissionAndDownloadNative(gameName);
-    } else if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
-      // Platform Desktop (tidak memerlukan pemeriksaan izin eksternal)
-      return await _createDummyGameFileNative(gameName);
-    }
-    return false;
-  } catch (e) {
-    debugPrint("Download Exception: $e");
-    return false;
-  }
-}
-// detail_screen.dart
-
-Future<bool> _checkPermissionAndDownloadNative(String gameName) async {
-  if (Platform.isAndroid) {
-    // 🔥 PERBAIKAN: Kita menggunakan Permission.storage.request().
-    // Di Android API 33+ (terbaru), permintaan ini akan memunculkan izin media (Foto/Video)
-    // atau izin "Files and Media" (Penyimpanan), tergantung target SDK.
-    // Kita anggap jika status granted, OS telah memberikan izin yang cukup.
-    var status = await Permission.storage.request(); 
-    
-    // Periksa status
-    if (status.isGranted) {
-        debugPrint("Permission STORAGE/Media granted. Proceeding with download.");
+  Future<bool> _executeDownloadLogic(String gameName) async {
+    try {
+      if (kIsWeb) {
+        return await _createDummyGameFileWeb(gameName);
+      } else if (Platform.isAndroid || Platform.isIOS) {
+        return await _checkPermissionAndDownloadNative(gameName);
+      } else if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
         return await _createDummyGameFileNative(gameName);
+      }
+      return false;
+    } catch (e) {
+      debugPrint("Download Exception: $e");
+      return false;
     }
-    
-    // Jika ditolak atau ditolak permanen
-    if (status.isPermanentlyDenied) {
-        // Arahkan pengguna ke pengaturan untuk memberikan izin secara manual.
+  }
+
+  // Cek Izin -> Download
+  Future<bool> _checkPermissionAndDownloadNative(String gameName) async {
+    if (Platform.isAndroid) {
+      final androidInfo = await DeviceInfoPlugin().androidInfo;
+      
+      // Android 13+ (API 33 ke atas)
+      if (androidInfo.version.sdkInt >= 33) {
+         var status = await Permission.photos.request();
+         
+         if (status.isGranted) {
+            return await _saveFileWithSystemDialog(gameName);
+         } else if (status.isPermanentlyDenied) {
+            openAppSettings();
+            return false;
+         }
+         return false;
+      }
+
+      // Android 12 ke bawah (Legacy Storage Permission)
+      var status = await Permission.storage.request();
+      
+      if (status.isGranted) {
+        return await _saveFileWithSystemDialog(gameName);
+      } else if (status.isPermanentlyDenied) {
         openAppSettings();
+        return false;
+      }
+      return false;
+      
+    } else if (Platform.isIOS) {
+      // iOS: Minta izin Photos library
+      var status = await Permission.photos.request();
+      if (status.isGranted || await Permission.photosAddOnly.isGranted) {
+        return await _saveFileWithSystemDialog(gameName);
+      }
+      return false;
     }
     
-    return false; 
-    
-  } else if (Platform.isIOS) {
-    // Untuk iOS, izin PhotoLibrary diperlukan untuk menyimpan media atau file
-    var status = await Permission.photos.request();
-    if (status.isGranted || await Permission.photosAddOnly.isGranted) {
-        debugPrint("Permission PHOTOS granted.");
-        return await _createDummyGameFileNative(gameName);
-    }
-    return false;
+    // Default fallback
+    return await _saveFileWithSystemDialog(gameName);
   }
-  return false;
-}
+
+  // Fungsi Save menggunakan System Dialog (SAF)
+  Future<bool> _saveFileWithSystemDialog(String gameName) async {
+    try {
+      final safeName = gameName.replaceAll(RegExp(r'[^\w\s]+'), '').replaceAll(' ', '_');
+      final fileName = "$safeName.exe";
+
+      // 1. Simpan di Cache (Temporary)
+      final tempDir = await getTemporaryDirectory();
+      final tempFilePath = "${tempDir.path}/$fileName";
+      final tempFile = File(tempFilePath);
+
+      List<int> dummyBytes = List.generate(1024 * 50, (index) => Random().nextInt(255));
+      await tempFile.writeAsBytes(dummyBytes);
+
+      // 2. Buka Dialog Native "Save As"
+      final params = SaveFileDialogParams(
+        sourceFilePath: tempFilePath,
+        fileName: fileName,
+      );
+
+      final filePath = await FlutterFileDialog.saveFile(params: params);
+      return filePath != null; 
+    } catch (e) {
+      debugPrint("Save File Error: $e");
+      return false;
+    }
+  }
+
+  // Logic Desktop (Path Provider)
+  Future<bool> _createDummyGameFileNative(String gameName) async {
+    try {
+      final safeName = gameName.replaceAll(RegExp(r'[^\w\s]+'), '').replaceAll(' ', '_');
+      final fileName = "$safeName.exe";
+
+      Directory? directory = await getDownloadsDirectory();
+      directory ??= await getApplicationDocumentsDirectory();
+
+      if (!await directory.exists()) await directory.create(recursive: true);
+
+      final String filePath = "${directory.path}/$fileName";
+      final File file = File(filePath);
+      List<int> dummyBytes = List.generate(1024 * 50, (index) => Random().nextInt(255));
+
+      await file.writeAsBytes(dummyBytes);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
 
   Future<bool> _createDummyGameFileWeb(String gameName) async {
     try {
-      final safeName =
-          gameName.replaceAll(RegExp(r'[^\w\s]+'), '').replaceAll(' ', '_');
+      final safeName = gameName.replaceAll(RegExp(r'[^\w\s]+'), '').replaceAll(' ', '_');
       final fileName = "$safeName.exe";
-      List<int> dummyBytes =
-          List.generate(1024 * 50, (index) => Random().nextInt(255));
+      List<int> dummyBytes = List.generate(1024 * 50, (index) => Random().nextInt(255));
 
       final blob = html.Blob([dummyBytes]);
       final url = html.Url.createObjectUrlFromBlob(blob);
@@ -118,62 +171,13 @@ Future<bool> _checkPermissionAndDownloadNative(String gameName) async {
         ..setAttribute("download", fileName)
         ..click();
       html.Url.revokeObjectUrl(url);
-
       return true;
     } catch (e) {
       return false;
     }
   }
 
-// detail_screen.dart
-
-Future<bool> _createDummyGameFileNative(String gameName) async {
-  try {
-    final safeName =
-        gameName.replaceAll(RegExp(r'[^\w\s]+'), '').replaceAll(' ', '_');
-    final fileName = "$safeName.exe";
-
-    Directory? directory;
-
-    // 🔥 PRIORITAS UTAMA: Gunakan getDownloadsDirectory()
-    // Ini adalah metode yang disarankan dan paling aman untuk Android Scoped Storage 
-    // dan juga berfungsi untuk Desktop.
-    directory = await getDownloadsDirectory();
-    
-    if (directory == null) {
-        // FALLBACK: Hanya dijalankan jika getDownloadsDirectory() gagal.
-        if (Platform.isAndroid) {
-            // Fallback ke direktori spesifik aplikasi (selalu bisa ditulis)
-            directory = await getApplicationDocumentsDirectory(); 
-            debugPrint("Fallback to App Documents directory.");
-        } else {
-            // Fallback ke direktori dokumen umum (untuk Desktop jika downloads null)
-            directory = await getApplicationDocumentsDirectory(); 
-        }
-    }
-
-    if (directory == null) {
-        debugPrint("Fatal: Could not determine any writable download directory.");
-        return false;
-    }
-
-    // Pastikan folder download ada
-    if (!await directory.exists()) {
-      await directory.create(recursive: true);
-    }
-    
-    final String filePath = "${directory.path}/$fileName";
-    final File file = File(filePath);
-    List<int> dummyBytes =
-        List.generate(1024 * 50, (index) => Random().nextInt(255));
-
-    await file.writeAsBytes(dummyBytes);
-    return true;
-  } catch (e) {
-    debugPrint("File creation error: $e");
-    return false;
-  }
-}
+  // --- UI WIDGETS ---
 
   void _handleWishlistToggle(
       BuildContext context, GameModel game, bool isCurrentlyWishlisted) {
@@ -182,13 +186,10 @@ Future<bool> _createDummyGameFileNative(String gameName) async {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          !isCurrentlyWishlisted
-              ? "Added to Wishlist"
-              : "Removed from Wishlist",
+          !isCurrentlyWishlisted ? "Added to Wishlist" : "Removed from Wishlist",
           style: GoogleFonts.poppins(color: Colors.white),
         ),
-        backgroundColor:
-            !isCurrentlyWishlisted ? Colors.green : Colors.redAccent,
+        backgroundColor: !isCurrentlyWishlisted ? Colors.green : Colors.redAccent,
         duration: const Duration(seconds: 1),
         behavior: SnackBarBehavior.floating,
       ),
@@ -203,10 +204,6 @@ Future<bool> _createDummyGameFileNative(String gameName) async {
         builder: (_) => _FullScreenGallery(images: images, initialIndex: index),
       ),
     );
-  }
-
-  void _showErrorSnack(String msg) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
   }
 
   @override
@@ -229,16 +226,12 @@ Future<bool> _createDummyGameFileNative(String gameName) async {
   }
 
   Widget _buildSuccessContent(BuildContext context, GameModel game) {
-
     const double kMaxWidth = 1250.0;
 
     return Stack(
       children: [
         Positioned(
-          top: 0,
-          left: 0,
-          right: 0,
-          height: 600,
+          top: 0, left: 0, right: 0, height: 600,
           child: Stack(
             fit: StackFit.expand,
             children: [
@@ -278,7 +271,6 @@ Future<bool> _createDummyGameFileNative(String gameName) async {
                     LayoutBuilder(
                       builder: (context, constraints) {
                         bool isDesktop = constraints.maxWidth > 800;
-
                         if (isDesktop) {
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -298,8 +290,7 @@ Future<bool> _createDummyGameFileNative(String gameName) async {
                                   Expanded(
                                       flex: 4,
                                       child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
+                                          crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
                                             _buildActionButtons(game),
                                             const SizedBox(height: 32),
@@ -310,11 +301,7 @@ Future<bool> _createDummyGameFileNative(String gameName) async {
                                             _buildSpecsAndDetails(game)
                                           ])),
                                   const SizedBox(width: 40),
-                                  Expanded(
-                                      flex: 3,
-                                      child: _buildMediaGallery(
-                                        game,
-                                      )),
+                                  Expanded(flex: 3, child: _buildMediaGallery(game)),
                                 ],
                               ),
                             ],
@@ -340,9 +327,7 @@ Future<bool> _createDummyGameFileNative(String gameName) async {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    _buildMediaGallery(
-                                      game,
-                                    ),
+                                    _buildMediaGallery(game),
                                     const SizedBox(height: 32),
                                     _buildRatingsSection(game),
                                     const SizedBox(height: 32),
@@ -358,8 +343,7 @@ Future<bool> _createDummyGameFileNative(String gameName) async {
                       },
                     ),
                     const SizedBox(height: 40),
-                    _buildDownloadButton(
-                        context, game.name, game.backgroundImage),
+                    _buildDownloadButton(context, game.name, game.backgroundImage),
                     const SizedBox(height: 50),
                   ],
                 ),
@@ -368,8 +352,7 @@ Future<bool> _createDummyGameFileNative(String gameName) async {
           ),
         ),
         Positioned(
-          top: 40,
-          left: 16,
+          top: 40, left: 16,
           child: IconButton(
               icon: const Icon(Icons.arrow_back, color: Colors.white, size: 28),
               onPressed: () => context.pop()),
@@ -391,18 +374,13 @@ Future<bool> _createDummyGameFileNative(String gameName) async {
               color: Colors.white, borderRadius: BorderRadius.circular(4)),
           child: Text(game.releasedDate.toUpperCase(),
               style: const TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 12)),
+                  color: Colors.black, fontWeight: FontWeight.bold, fontSize: 12)),
         ),
         Row(
           mainAxisSize: MainAxisSize.min,
-          children: game.platforms
-              .take(4)
-              .map((p) => Padding(
+          children: game.platforms.take(4).map((p) => Padding(
                   padding: const EdgeInsets.only(right: 8.0),
-                  child:
-                      Icon(_getPlatformIcon(p), color: Colors.white, size: 16)))
+                  child: Icon(_getPlatformIcon(p), color: Colors.white, size: 16)))
               .toList(),
         ),
         if (game.playtime > 0)
@@ -419,17 +397,14 @@ Future<bool> _createDummyGameFileNative(String gameName) async {
   Widget _buildActionButtons(GameModel game) {
     return BlocBuilder<WishlistCubit, WishlistState>(
       builder: (context, state) {
-        final isWishlisted =
-            context.read<WishlistCubit>().isWishlisted(game.id);
+        final isWishlisted = context.read<WishlistCubit>().isWishlisted(game.id);
         return OutlinedButton(
           onPressed: () => _handleWishlistToggle(context, game, isWishlisted),
           style: OutlinedButton.styleFrom(
             foregroundColor: Colors.white,
-            side: BorderSide(
-                color: isWishlisted ? Colors.redAccent : Colors.white24),
+            side: BorderSide(color: isWishlisted ? Colors.redAccent : Colors.white24),
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -496,9 +471,7 @@ Future<bool> _createDummyGameFileNative(String gameName) async {
       Row(children: [
         Text(_getRatingTitle(game.rating),
             style: GoogleFonts.poppins(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Colors.white)),
+                fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white)),
         const SizedBox(width: 8),
         Icon(_getRatingIcon(game.rating), color: Colors.amber, size: 24),
         const SizedBox(width: 16),
@@ -515,8 +488,7 @@ Future<bool> _createDummyGameFileNative(String gameName) async {
           child: SizedBox(
               height: 50,
               child: Row(
-                  children: ratings
-                      .map((r) => Expanded(
+                  children: ratings.map((r) => Expanded(
                           flex: (r['percent'] as double).toInt() == 0
                               ? 1
                               : (r['percent'] as double).toInt(),
@@ -526,10 +498,8 @@ Future<bool> _createDummyGameFileNative(String gameName) async {
       Wrap(
           spacing: 16,
           runSpacing: 8,
-          children: ratings
-              .map((r) => Row(mainAxisSize: MainAxisSize.min, children: [
-                    Icon(Icons.circle,
-                        color: _getRatingColor(r['id']), size: 10),
+          children: ratings.map((r) => Row(mainAxisSize: MainAxisSize.min, children: [
+                    Icon(Icons.circle, color: _getRatingColor(r['id']), size: 10),
                     const SizedBox(width: 6),
                     Text(r['title'].toString().capitalize(),
                         style: const TextStyle(
@@ -537,8 +507,7 @@ Future<bool> _createDummyGameFileNative(String gameName) async {
                     const SizedBox(width: 4),
                     Text("${r['count'] ?? ''}",
                         style: const TextStyle(color: Colors.white54))
-                  ]))
-              .toList())
+                  ])).toList())
     ]);
   }
 
@@ -597,14 +566,9 @@ Future<bool> _createDummyGameFileNative(String gameName) async {
   Widget _buildAboutSection(GameModel game) => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            "About",
-            style: GoogleFonts.poppins(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
-          ),
+          Text("About",
+              style: GoogleFonts.poppins(
+                  fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white)),
           const SizedBox(height: 8),
           _ExpandableText(text: game.description),
         ],
@@ -613,49 +577,33 @@ Future<bool> _createDummyGameFileNative(String gameName) async {
   Widget _buildSpecsAndDetails(GameModel game) => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildDetailRow(
-              "Platforms",
-              _buildFilterButtons(
-                  context: context,
-                  items: game.detailedPlatforms,
-                  isPlatform: true)),
+          _buildDetailRow("Platforms",
+              _buildFilterButtons(context: context, items: game.detailedPlatforms, isPlatform: true)),
           const SizedBox(height: 16),
-          _buildDetailRow(
-              "Genres",
-              _buildFilterButtons(
-                  context: context,
-                  items: game.detailedGenres,
-                  isPlatform: false)),
+          _buildDetailRow("Genres",
+              _buildFilterButtons(context: context, items: game.detailedGenres, isPlatform: false)),
           const SizedBox(height: 16),
-          _buildDetailRow(
-              "Developer", _buildSimpleText(game.developers.join(', '))),
+          _buildDetailRow("Developer", _buildSimpleText(game.developers.join(', '))),
           const SizedBox(height: 16),
-          _buildDetailRow(
-              "Publisher", _buildSimpleText(game.publishers.join(', '))),
+          _buildDetailRow("Publisher", _buildSimpleText(game.publishers.join(', '))),
           const SizedBox(height: 32),
           if (game.pcRequirements['minimum']!.isNotEmpty) ...[
             Text("System requirements for PC",
                 style: GoogleFonts.poppins(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white)),
+                    fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
             const SizedBox(height: 12),
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(16),
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(game.pcRequirements['minimum']!,
-                        style: const TextStyle(
-                            color: Colors.grey, fontSize: 13, height: 1.5)),
-                    const SizedBox(height: 16),
-                    if (game.pcRequirements['recommended']!.isNotEmpty) ...[
-                      Text(game.pcRequirements['recommended']!,
-                          style: const TextStyle(
-                              color: Colors.grey, fontSize: 13, height: 1.5))
-                    ]
-                  ]),
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text(game.pcRequirements['minimum']!,
+                    style: const TextStyle(color: Colors.grey, fontSize: 13, height: 1.5)),
+                const SizedBox(height: 16),
+                if (game.pcRequirements['recommended']!.isNotEmpty) ...[
+                  Text(game.pcRequirements['recommended']!,
+                      style: const TextStyle(color: Colors.grey, fontSize: 13, height: 1.5))
+                ]
+              ]),
             ),
           ],
         ],
@@ -665,12 +613,12 @@ Future<bool> _createDummyGameFileNative(String gameName) async {
       Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
         SizedBox(
             width: 100,
-            child: Text(label,
-                style: TextStyle(color: Colors.grey[600], fontSize: 14))),
+            child: Text(label, style: TextStyle(color: Colors.grey[600], fontSize: 14))),
         Expanded(child: child)
       ]);
   Widget _buildSimpleText(String text) => Text(text,
       style: const TextStyle(color: Colors.white, fontSize: 14, height: 1.4));
+  
   Widget _buildFilterButtons(
       {required BuildContext context,
       required List<Map<String, dynamic>> items,
@@ -679,8 +627,7 @@ Future<bool> _createDummyGameFileNative(String gameName) async {
     return Wrap(
         spacing: 6,
         runSpacing: 6,
-        children: items
-            .map((item) => InkWell(
+        children: items.map((item) => InkWell(
                 onTap: () {
                   final Map<String, String> filters = {};
                   if (isPlatform) {
@@ -694,64 +641,51 @@ Future<bool> _createDummyGameFileNative(String gameName) async {
                   });
                 },
                 child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     decoration: BoxDecoration(
                         color: const Color(0xFF2A2A2A),
                         borderRadius: BorderRadius.circular(4)),
                     child: Text(item['name'],
-                        style: const TextStyle(
-                            color: Colors.white, fontSize: 12)))))
+                        style: const TextStyle(color: Colors.white, fontSize: 12)))))
             .toList());
   }
 
-      IconData _getPlatformIcon(String platform) {
-        final p = platform.toLowerCase();
-        if (p.contains('pc') || p.contains('windows')) {
-          return FontAwesomeIcons.windows;
-        }
-        if (p.contains('playstation') || p.contains('ps')) {
-          return FontAwesomeIcons.playstation;
-        }
-        if (p.contains('xbox')) return FontAwesomeIcons.xbox;
-        if (p.contains('switch') || p.contains('nintendo')) {
-          return FontAwesomeIcons.gamepad;
-        }
-        if (p.contains('mac') || p.contains('apple')) return FontAwesomeIcons.apple;
-        if (p.contains('linux')) return FontAwesomeIcons.linux;
-        if (p.contains('android')) return FontAwesomeIcons.android;
-        if (p.contains('ios')) return FontAwesomeIcons.appStoreIos;
-        return FontAwesomeIcons.gamepad;
-      }
+  IconData _getPlatformIcon(String platform) {
+    final p = platform.toLowerCase();
+    if (p.contains('pc') || p.contains('windows')) return FontAwesomeIcons.windows;
+    if (p.contains('playstation') || p.contains('ps')) return FontAwesomeIcons.playstation;
+    if (p.contains('xbox')) return FontAwesomeIcons.xbox;
+    if (p.contains('switch') || p.contains('nintendo')) return FontAwesomeIcons.gamepad;
+    if (p.contains('mac') || p.contains('apple')) return FontAwesomeIcons.apple;
+    if (p.contains('linux')) return FontAwesomeIcons.linux;
+    if (p.contains('android')) return FontAwesomeIcons.android;
+    if (p.contains('ios')) return FontAwesomeIcons.appStoreIos;
+    return FontAwesomeIcons.gamepad;
+  }
 
-      String _getRatingTitle(double rating) {
-        if (rating >= 4.5) return "Exceptional";
-        if (rating >= 3.5) return "Recommended";
-        if (rating >= 2.5) return "Meh";
-        return "Skip";
-      }
+  String _getRatingTitle(double rating) {
+    if (rating >= 4.5) return "Exceptional";
+    if (rating >= 3.5) return "Recommended";
+    if (rating >= 2.5) return "Meh";
+    return "Skip";
+  }
 
-      IconData _getRatingIcon(double rating) {
-        if (rating >= 4.5) return FontAwesomeIcons.bullseye;
-        if (rating >= 3.5) return FontAwesomeIcons.thumbsUp;
-        if (rating >= 2.5) return FontAwesomeIcons.faceMeh;
-        return FontAwesomeIcons.ban;
-      }
+  IconData _getRatingIcon(double rating) {
+    if (rating >= 4.5) return FontAwesomeIcons.bullseye;
+    if (rating >= 3.5) return FontAwesomeIcons.thumbsUp;
+    if (rating >= 2.5) return FontAwesomeIcons.faceMeh;
+    return FontAwesomeIcons.ban;
+  }
 
-      Color _getRatingColor(int id) {
-        switch (id) {
-          case 5:
-            return const Color(0xFF6DC849);
-          case 4:
-            return const Color(0xFF4D85F0);
-          case 3:
-            return const Color(0xFFFDCA52);
-          case 1:
-            return const Color(0xFFFF4842);
-          default:
-            return Colors.grey;
-        }
-      }
+  Color _getRatingColor(int id) {
+    switch (id) {
+      case 5: return const Color(0xFF6DC849);
+      case 4: return const Color(0xFF4D85F0);
+      case 3: return const Color(0xFFFDCA52);
+      case 1: return const Color(0xFFFF4842);
+      default: return Colors.grey;
+    }
+  }
 
   Widget _buildLoadingScreen() => const Scaffold(
       backgroundColor: Color(0xFF121212),
@@ -759,9 +693,7 @@ Future<bool> _createDummyGameFileNative(String gameName) async {
   Widget _buildErrorScreen(BuildContext context, String msg) => Scaffold(
       appBar: AppBar(backgroundColor: Colors.transparent),
       backgroundColor: const Color(0xFF121212),
-      body: Center(
-          child: Text("Error: $msg",
-              style: const TextStyle(color: Colors.white))));
+      body: Center(child: Text("Error: $msg", style: const TextStyle(color: Colors.white))));
 }
 
 extension StringExtension on String {
@@ -783,11 +715,9 @@ class _ExpandableTextState extends State<_ExpandableText> {
       AnimatedSize(
           duration: const Duration(milliseconds: 300),
           child: Text(widget.text,
-              style: const TextStyle(
-                  color: Colors.white, fontSize: 14, height: 1.5),
+              style: const TextStyle(color: Colors.white, fontSize: 14, height: 1.5),
               maxLines: _isExpanded ? null : 4,
-              overflow:
-                  _isExpanded ? TextOverflow.visible : TextOverflow.fade)),
+              overflow: _isExpanded ? TextOverflow.visible : TextOverflow.fade)),
       const SizedBox(height: 8),
       GestureDetector(
           onTap: () => setState(() => _isExpanded = !_isExpanded),
@@ -797,9 +727,7 @@ class _ExpandableTextState extends State<_ExpandableText> {
                   color: Colors.white, borderRadius: BorderRadius.circular(4)),
               child: Text(_isExpanded ? "Show less" : "Show more",
                   style: const TextStyle(
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 11))))
+                      color: Colors.black, fontWeight: FontWeight.bold, fontSize: 11))))
     ]);
   }
 }
@@ -828,11 +756,7 @@ class _FullScreenGalleryState extends State<_FullScreenGallery> {
     super.dispose();
   }
 
-  void _onPageChanged(int index) {
-    setState(() {
-      _currentIndex = index;
-    });
-  }
+  void _onPageChanged(int index) => setState(() => _currentIndex = index);
 
   void _goToPrevious() {
     if (_currentIndex > 0) {
@@ -866,15 +790,12 @@ class _FullScreenGalleryState extends State<_FullScreenGallery> {
                             imageUrl: widget.images[index],
                             fit: BoxFit.contain,
                             placeholder: (context, url) => const Center(
-                                child: CircularProgressIndicator(
-                                    color: Colors.white)),
+                                child: CircularProgressIndicator(color: Colors.white)),
                             errorWidget: (context, url, error) =>
                                 const Icon(Icons.error, color: Colors.white))));
               }),
           Positioned(
-              top: 20,
-              left: 0,
-              right: 0,
+              top: 20, left: 0, right: 0,
               child: SafeArea(
                   child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -884,22 +805,17 @@ class _FullScreenGalleryState extends State<_FullScreenGallery> {
                         decoration: BoxDecoration(
                             color: Colors.black.withOpacity(0.5),
                             borderRadius: BorderRadius.circular(30)),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         child: Row(mainAxisSize: MainAxisSize.min, children: [
                           IconButton(
                               icon: Icon(Icons.chevron_left,
-                                  color: _currentIndex > 0
-                                      ? Colors.white
-                                      : Colors.white38),
+                                  color: _currentIndex > 0 ? Colors.white : Colors.white38),
                               onPressed: _goToPrevious),
                           const SizedBox(width: 16),
                           IconButton(
                               icon: Icon(Icons.chevron_right,
-                                  color:
-                                      _currentIndex < widget.images.length - 1
-                                          ? Colors.white
-                                          : Colors.white38),
+                                  color: _currentIndex < widget.images.length - 1
+                                      ? Colors.white : Colors.white38),
                               onPressed: _goToNext)
                         ])),
                     Padding(
@@ -909,14 +825,11 @@ class _FullScreenGalleryState extends State<_FullScreenGallery> {
                                 color: Colors.black.withOpacity(0.5),
                                 shape: BoxShape.circle),
                             child: IconButton(
-                                icon: const Icon(Icons.close,
-                                    color: Colors.white),
+                                icon: const Icon(Icons.close, color: Colors.white),
                                 onPressed: () => Navigator.pop(context))))
                   ]))),
           Positioned(
-              bottom: 0,
-              left: 0,
-              right: 0,
+              bottom: 0, left: 0, right: 0,
               child: Container(
                   height: 100,
                   color: Colors.black.withOpacity(0.8),
@@ -934,22 +847,18 @@ class _FullScreenGalleryState extends State<_FullScreenGallery> {
                                   color: Colors.grey[900],
                                   borderRadius: BorderRadius.circular(8),
                                   border: Border.all(color: Colors.white24)),
-                              child: const Icon(Icons.more_horiz,
-                                  color: Colors.white));
+                              child: const Icon(Icons.more_horiz, color: Colors.white));
                         }
                         final bool isSelected = index == _currentIndex;
                         return GestureDetector(
-                            onTap: () {
-                              _pageController.jumpToPage(index);
-                            },
+                            onTap: () => _pageController.jumpToPage(index),
                             child: Container(
                                 width: 100,
                                 margin: const EdgeInsets.only(right: 8),
                                 decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(8),
                                     border: isSelected
-                                        ? Border.all(
-                                            color: Colors.white, width: 2)
+                                        ? Border.all(color: Colors.white, width: 2)
                                         : null),
                                 child: ClipRRect(
                                     borderRadius: BorderRadius.circular(6),
@@ -963,9 +872,7 @@ class _FullScreenGalleryState extends State<_FullScreenGallery> {
                                             imageUrl: widget.images[index],
                                             fit: BoxFit.cover,
                                             placeholder: (context, url) =>
-                                                Container(
-                                                    color:
-                                                        Colors.grey[900]))))));
+                                                Container(color: Colors.grey[900]))))));
                       })))
         ]));
   }
@@ -989,18 +896,14 @@ class _DownloadPopupState extends State<_DownloadPopup> {
   int _currentStatus = 0;
 
   Future<void> _runDownloadProcess() async {
-    setState(() {
-      _currentStatus = 1;
-    });
+    setState(() => _currentStatus = 1);
 
     bool isSuccess = await widget.onDownloadStart();
 
     await Future.delayed(const Duration(seconds: 1));
 
     if (mounted) {
-      setState(() {
-        _currentStatus = isSuccess ? 2 : 3;
-      });
+      setState(() => _currentStatus = isSuccess ? 2 : 3);
 
       if (isSuccess) {
         Future.delayed(const Duration(seconds: 2), () {
@@ -1090,32 +993,25 @@ class _DownloadPopupState extends State<_DownloadPopup> {
           key: const ValueKey("CountdownTween"),
           tween: Tween(begin: 1.0, end: 0.0),
           duration: const Duration(seconds: 7),
-          onEnd: () {
-            _runDownloadProcess();
-          },
+          onEnd: () => _runDownloadProcess(),
           builder: (context, value, child) {
             final int secondsLeft = (value * 7).ceil();
-
             return Stack(
               alignment: Alignment.center,
               children: [
                 SizedBox(
-                  width: 80,
-                  height: 80,
+                  width: 80, height: 80,
                   child: CircularProgressIndicator(
                     value: value,
                     strokeWidth: 6,
                     backgroundColor: Colors.grey[800],
-                    valueColor:
-                        const AlwaysStoppedAnimation<Color>(Colors.white),
+                    valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
                   ),
                 ),
                 Text(
                   "$secondsLeft",
                   style: GoogleFonts.poppins(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white),
+                      fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white),
                 ),
               ],
             );
@@ -1124,20 +1020,15 @@ class _DownloadPopupState extends State<_DownloadPopup> {
       case 1:
         return const SizedBox(
           key: ValueKey("Loading"),
-          width: 60,
-          height: 60,
-          child: CircularProgressIndicator(
-            color: Colors.white,
-            strokeWidth: 4,
-          ),
+          width: 60, height: 60,
+          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 4),
         );
       case 2:
         return Column(
           key: const ValueKey("Success"),
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.check_circle_outline,
-                color: Color(0xFF4CAF50), size: 80),
+            const Icon(Icons.check_circle_outline, color: Color(0xFF4CAF50), size: 80),
             const SizedBox(height: 8),
             Text("File Saved",
                 style: GoogleFonts.poppins(
@@ -1151,7 +1042,7 @@ class _DownloadPopupState extends State<_DownloadPopup> {
           children: [
             const Icon(Icons.highlight_off, color: Color(0xFFE53935), size: 80),
             const SizedBox(height: 8),
-            Text("Permission Denied / Error",
+            Text("Download Failed",
                 style: GoogleFonts.poppins(
                     color: const Color(0xFFE53935), fontSize: 12)),
           ],
