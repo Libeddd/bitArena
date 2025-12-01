@@ -107,3 +107,4 @@ Build bitarena from the source and install dependencies:
 | -- | ------------------------ | ----------- |
 | 1. | Mooch Abit Sunaryo       | 24111814048 |
 | 2. | Gofur Aryan Nur Karim    | 24111814048 |
+| 3. | Gilang Kelvin Saputra    | 24111814048 |
