@@ -87,6 +87,13 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
       'github': 'https://github.com/mnabizar',
       'instagram': 'https://instagram.com/mnabizar',
     },
+    {
+      'name': 'Muhammad Dava Khoirur Roziqy',
+      'role': 'System Analyst',
+      'image': 'assets/team_member_10.png',
+      'github': 'https://github.com/SUPERChild973/SUPER973',
+      'instagram': 'https://www.instagram.com/davajharzqyy__',
+    },
   ];
 
   @override
