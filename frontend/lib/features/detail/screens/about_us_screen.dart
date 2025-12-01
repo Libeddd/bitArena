@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class AboutUsScreen extends StatefulWidget {
   const AboutUsScreen({super.key});
@@ -20,77 +21,63 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
     {
       'name': 'Mochammad Abid Sunaryo',
       'role': 'Leader Engineer',
-      'image': 'assets/team_member_1.png',
+      'image': 'https://avatars.githubusercontent.com/u/174584123?v=4',
       'github': 'https://github.com/alexwijaya',
       'instagram': 'https://instagram.com/alexwijaya',
     },
     {
       'name': 'Gofur Aryan Nur Karim',
       'role': 'Vice Leader Engineer',
-      'image': 'assets/team_member_2.png',
+      'image': 'https://avatars.githubusercontent.com/u/207808411?v=4',
       'github': 'https://github.com/Gofurryan',
       'instagram': 'https://instagram.com/gfryann',
     },
     {
       'name': 'Gilang Kelvin Saputra',
       'role': 'Lead Frontend Engineer',
-      'image': 'assets/team_member_3.png',
+      'image': 'https://avatars.githubusercontent.com/u/208259638?v=4',
       'github': 'https://github.com/vsarutobi',
       'instagram': 'https://instagram.com/gilangkelv',
     },
     {
-      'name': 'muhammad nur thohir',
+      'name': 'Muhammad nur thohir',
       'role': 'Lead Mobile Developer',
-      'image': 'assets/team_member_4.png',
+      'image': 'https://avatars.githubusercontent.com/u/212884099?s=60&v=4',
       'github': 'https://github.com/draxel03',
       'instagram': 'https://instagram.com/nrthohir',
     },
     {
       'name': 'Izha Valensy',
       'role': 'Lead Backend Engineer',
-      'image': 'assets/team_member_4.png',
+      'image': 'https://avatars.githubusercontent.com/u/208361358?v=4',
       'github': 'https://github.com/1jaxxx',
       'instagram': 'https://instagram.com/ijakk_iv',
     },
     {
       'name': 'Muhammad Amrullah Widyapratama',
       'role': 'Support Frontend Engineer',
-      'image': 'assets/team_member_5.png',
+      'image': 'https://avatars.githubusercontent.com/u/182313276?s=60&v=4',
       'github': 'https://github.com/AxelPra',
       'instagram': 'https://instagram.com/xel_prtmaa_',
     },
     {
-      'name': 'Fanny Rahma',
-      'role': 'Lead Backend Engineer',
-      'image': 'assets/team_member_6.png',
-      'github': 'https://github.com/fannyrahma',
-      'instagram': 'https://instagram.com/fannyrahma',
-    },
-    {
-      'name': 'Gilang Ramadhan',
-      'role': 'Frontend Developer',
-      'image': 'assets/team_member_7.png',
-      'github': 'https://github.com/gilang',
-      'instagram': 'https://instagram.com/gilang',
-    },
-    {
       'name': 'Ismail Ali Mukharom',
       'role': 'Quality Assurance',
-      'image': 'assets/team_member_8.png',
+      'image': 'https://avatars.githubusercontent.com/u/200033565?s=60&v=4',
       'github': 'https://github.com/IlDarkCloud',
-      'instagram': 'https://instagram.com/haniifah',
+      'instagram': 'https://instagram.com/ishllmho',
     },
     {
       'name': 'Muhammad Noor Abizar',
       'role': 'System Analyst',
-      'image': 'assets/team_member_9.png',
+      'image': 'https://avatars.githubusercontent.com/u/208147443?s=60&v=4',
       'github': 'https://github.com/mnabizar',
       'instagram': 'https://instagram.com/mnabizar',
     },
     {
       'name': 'Muhammad Dava Khoirur Roziqy',
       'role': 'System Analyst',
-      'image': 'assets/team_member_10.png',
+      'image': 'https://avatars.githubusercontent.com/u/208224463?v=4',
       'github': 'https://github.com/SUPERChild973/SUPER973',
       'instagram': 'https://www.instagram.com/davajharzqyy__',
     },
@@ -129,7 +116,7 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
               children: [
                 // --- 1. DESKRIPSI PROJECT (NARRATIVE) ---
                 Text(
-                  'The bitArena Story',
+                  'bitArena Story',
                   style: GoogleFonts.poppins(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -225,7 +212,7 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Orang-orang hebat di balik layar',
+                        'Orang-orang di balik layar',
                         style: GoogleFonts.poppins(
                           fontSize: 14,
                           color: Colors.grey[500],
@@ -242,7 +229,7 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
                   physics: const NeverScrollableScrollPhysics(),
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: crossAxisCount, // Variabel responsif
-                    childAspectRatio: 0.8,
+                    childAspectRatio: 0.7,
                     mainAxisSpacing: 16,
                     crossAxisSpacing: 16,
                   ),
@@ -339,9 +326,11 @@ class TeamMemberCard extends StatelessWidget {
               ],
               color: Colors.grey[800],
               image: DecorationImage(
-                image: AssetImage(imagePath),
+                image: CachedNetworkImageProvider(imagePath),
                 fit: BoxFit.cover,
-                onError: (exception, stackTrace) {},
+                onError: (exception, stackTrace) {
+                  debugPrint("Gagal memuat gambar: $exception");
+                },
               ),
             ),
             child: const Icon(Icons.person, color: Colors.white24, size: 40),
@@ -359,11 +348,13 @@ class TeamMemberCard extends StatelessWidget {
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
                     fontSize: 14,
+                    height: 1.2,
                   ),
                   textAlign: TextAlign.center,
-                  maxLines: 1,
+                  maxLines: 3,
                   overflow: TextOverflow.ellipsis,
                 ),
+                const SizedBox(height: 4),
                 Text(
                   role,
                   style: GoogleFonts.poppins(
