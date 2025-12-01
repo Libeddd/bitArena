@@ -68,18 +68,18 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
       'instagram': 'https://instagram.com/ishllmho',
     },
     {
-      'name': 'Muhammad Noor Abizar',
-      'role': 'System Analyst',
-      'image': 'https://avatars.githubusercontent.com/u/208147443?s=60&v=4',
-      'github': 'https://github.com/mnabizar',
-      'instagram': 'https://instagram.com/mnabizar',
-    },
-    {
       'name': 'Muhammad Dava Khoirur Roziqy',
       'role': 'System Analyst',
       'image': 'https://avatars.githubusercontent.com/u/208224463?v=4',
       'github': 'https://github.com/SUPERChild973/SUPER973',
       'instagram': 'https://www.instagram.com/davajharzqyy__',
+    },
+    {
+      'name': 'Muhammad Noor Abizar',
+      'role': 'System Analyst',
+      'image': 'https://avatars.githubusercontent.com/u/208147443?s=60&v=4',
+      'github': 'https://github.com/mnabizar',
+      'instagram': 'https://instagram.com/mnabizar',
     },
   ];
 
