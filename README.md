@@ -105,7 +105,8 @@ Build bitarena from the source and install dependencies:
 
 | No | Nama Lengkap             | NIM         |
 | -- | ------------------------ | ----------- |
-| 1. | Mooch Abit Sunaryo       | 24111814048 |
-| 2. | Gofur Aryan Nur Karim    | 24111814048 |
-| 3. | Gilang Kelvin Saputra    | 24111814048 |
-| 4. | Izha Valensy             | 24111814048 |
+| 1. | Mochammad Abid Sunaryo   | 24111814043 |
+| 2. | Gofur Aryan Nur Karim    | 24111814031 |
+| 3. | Gilang Kelvin Saputra    | 24111814096 |
+| 4. | Izha Valensy             | 24111814125 |
+| 5. | Muhammad Noor Abizar     | 24111814105 |
