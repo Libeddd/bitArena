@@ -113,4 +113,4 @@ Build bitarena from the source and install dependencies:
 | 6. | Muhammad Nur thohir      | 24111814074 |
 | 7. | Muhammad Dava Khoirur R  | 24111814068 |
 | 8. | Muhammad Amrullah W      | 24111814136 |
-| 8. | Ismail ali mukharom      | 24111814130 |
+| 9. | Ismail ali mukharom      | 24111814130 |
