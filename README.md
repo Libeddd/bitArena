@@ -98,3 +98,11 @@ Programming Language: Dart
 # Installation
 
 Build bitarena from the source and install dependencies:
+
+# KELOMPOK 3
+
+👥 Tim Pengembang — BitArena
+
+| No | Nama Lengkap             | NIM         |
+| -- | ------------------------ | ----------- |
+| 1. | Mooch Abit Sunaryo       | 24111814048 |
