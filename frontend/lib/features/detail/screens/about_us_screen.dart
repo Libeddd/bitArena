@@ -14,7 +14,7 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
   bool _isExpanded = false;
 
   // Konstanta untuk Lebar Maksimum Konten (Desktop)
-  static const double kMaxWidth = 1000.0; 
+  static const double kMaxWidth = 1000.0;
 
   final List<Map<String, String>> _teamMembers = const [
     {
@@ -74,10 +74,10 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
       'instagram': 'https://instagram.com/gilang',
     },
     {
-      'name': 'Haniifah',
+      'name': 'Ismail Ali Mukharom',
       'role': 'Quality Assurance',
       'image': 'assets/team_member_8.png',
-      'github': 'https://github.com/haniifah',
+      'github': 'https://github.com/IlDarkCloud',
       'instagram': 'https://instagram.com/haniifah',
     },
     {
@@ -102,7 +102,7 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
     final screenWidth = MediaQuery.of(context).size.width;
     // Menentukan jumlah kolom GridView berdasarkan lebar layar
     final crossAxisCount = screenWidth > 900 ? 4 : (screenWidth > 600 ? 3 : 2);
-    
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -117,8 +117,10 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
         ),
       ),
       backgroundColor: const Color(0xFF121212),
-      body: Center( // CENTER KONTEN UTAMA
-        child: ConstrainedBox( // BATAS LEBAR MAKSIMUM
+      body: Center(
+        // CENTER KONTEN UTAMA
+        child: ConstrainedBox(
+          // BATAS LEBAR MAKSIMUM
           constraints: const BoxConstraints(maxWidth: kMaxWidth),
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(20.0),
@@ -135,7 +137,7 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                
+
                 // Paragraf 1: Pengenalan & Misi (Selalu Ditampilkan)
                 Text(
                   'Selamat datang di bitArena, gerbang utama Anda menuju dunia hiburan digital tanpa batas. Dibangun dengan teknologi Flutter terbaru dan ditenagai oleh performa handal, bitArena bukan sekadar katalog game—ini adalah ekosistem yang dirancang untuk para pencinta game lintas platform.',
@@ -146,7 +148,7 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
                   ),
                   textAlign: TextAlign.justify,
                 ),
-                
+
                 // --- KONTEN EXPANDABLE (Show More) ---
                 if (_isExpanded) ...[
                   const SizedBox(height: 12),
@@ -195,14 +197,16 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
                       ),
                       const SizedBox(width: 4),
                       Icon(
-                        _isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                        _isExpanded
+                            ? Icons.keyboard_arrow_up
+                            : Icons.keyboard_arrow_down,
                         color: Colors.blueAccent,
                         size: 20,
                       ),
                     ],
                   ),
                 ),
-                
+
                 const SizedBox(height: 30),
                 const Divider(color: Colors.white24, thickness: 1),
                 const SizedBox(height: 30),
@@ -254,7 +258,7 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
                     );
                   },
                 ),
-                
+
                 // Copyright footer kecil
                 const SizedBox(height: 40),
                 Center(
@@ -320,11 +324,12 @@ class TeamMemberCard extends StatelessWidget {
         children: [
           // Foto Anggota
           Container(
-            width: 80, 
+            width: 80,
             height: 80,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              border: Border.all(color: Colors.blueAccent.withOpacity(0.8), width: 2),
+              border: Border.all(
+                  color: Colors.blueAccent.withOpacity(0.8), width: 2),
               boxShadow: [
                 BoxShadow(
                   color: Colors.blueAccent.withOpacity(0.2),
@@ -334,15 +339,15 @@ class TeamMemberCard extends StatelessWidget {
               ],
               color: Colors.grey[800],
               image: DecorationImage(
-                image: AssetImage(imagePath), 
+                image: AssetImage(imagePath),
                 fit: BoxFit.cover,
                 onError: (exception, stackTrace) {},
               ),
             ),
-            child: const Icon(Icons.person, color: Colors.white24, size: 40), 
+            child: const Icon(Icons.person, color: Colors.white24, size: 40),
           ),
           const SizedBox(height: 12),
-          
+
           // Nama & Role
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4.0),
@@ -373,9 +378,9 @@ class TeamMemberCard extends StatelessWidget {
               ],
             ),
           ),
-          
+
           const SizedBox(height: 12),
-          
+
           // Link Sosial Media
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -422,7 +427,7 @@ class _SocialIconBtn extends StatelessWidget {
           child: FaIcon(
             icon,
             color: color,
-            size: 26, 
+            size: 26,
           ),
         ),
       ),
