@@ -109,8 +109,8 @@ Build bitarena from the source and install dependencies:
 | 2. | Gofur Aryan Nur Karim    | 24111814031 |
 | 3. | Gilang Kelvin Saputra    | 24111814096 |
 | 4. | Izha Valensy             | 24111814125 |
-| 5. | Muhammad Noor Abizar     | 24111814105 |
+| 5. | Ismail ali mukharom      | 24111814130 |
 | 6. | Muhammad Nur thohir      | 24111814074 |
 | 7. | Muhammad Dava Khoirur R  | 24111814068 |
 | 8. | Muhammad Amrullah W      | 24111814136 |
-| 9. | Ismail ali mukharom      | 24111814130 |
+| 9. | Muhammad Noor Abizar     | 24111814105 |
