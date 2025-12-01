@@ -106,3 +106,4 @@ Build bitarena from the source and install dependencies:
 | No | Nama Lengkap             | NIM         |
 | -- | ------------------------ | ----------- |
 | 1. | Mooch Abit Sunaryo       | 24111814048 |
+| 2. | Gofur Aryan Nur Karim    | 24111814048 |
