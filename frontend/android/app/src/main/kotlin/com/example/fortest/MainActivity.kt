@@ -1,4 +1,4 @@
-package com.example.fortest
+package com.bitarena.app
 
 import io.flutter.embedding.android.FlutterActivity
 
